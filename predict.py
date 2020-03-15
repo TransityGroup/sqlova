@@ -175,7 +175,7 @@ def run_split(split):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=True)
+                          dset_name=split, EG=False)
 
     # Save results
     save_for_evaluation(path_save_for_evaluation, results, split)
