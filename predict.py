@@ -193,7 +193,7 @@ def handle_request0(request):
     debug = 'debug' in request.form
     base = ""
     try:
-        filename = "data/iris.csv"
+        filename = "data/test.csv"
         # if not 'csv' in request.files:
         #     raise Exception('please include a csv file')
         if not 'q' in request.form:
