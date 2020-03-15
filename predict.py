@@ -146,6 +146,7 @@ model, model_bert, tokenizer, bert_config = get_models(args, BERT_PT_PATH, train
 
 def run_split(split):
     # Load data
+    print("SPlit:" +split)
     dev_data, dev_table = load_wikisql_data(args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
     dev_loader = torch.utils.data.DataLoader(
         batch_size=args.bS,
@@ -204,13 +205,16 @@ def handle_request0(request):
         table_id = filename
         table_id = re.sub(r'\W+', '_', table_id)
 
-        # it would be easy to do all this in memory but I'm lazy
+        # Read the csv and generate a database & .tables.jsonl
         stream = io.StringIO(csv.read(), newline=None)
         base = table_id + "_" + str(uuid.uuid4())
         add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
         stream.seek(0)
+
         record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
         stream.seek(0)
+
+        # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')
         annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
                                                      record)
@@ -218,7 +222,9 @@ def handle_request0(request):
 
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
-
+        print("~~~~~~~~~~~~`")
+        print("base")
+        print(base)
         message = run_split(base)
         code = 200
 
