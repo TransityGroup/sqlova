@@ -189,6 +189,7 @@ if args.split:
 
 
 def handle_request0(request):
+    print("NEW CODE")
     debug = 'debug' in request.form
     base = ""
     try:
@@ -214,7 +215,7 @@ def handle_request0(request):
         annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
                                                      record)
 
-                                                     
+
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
