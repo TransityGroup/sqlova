@@ -192,17 +192,19 @@ def handle_request0(request):
     debug = 'debug' in request.form
     base = ""
     try:
-        if not 'csv' in request.files:
-            raise Exception('please include a csv file')
+        filename = "data/iris.csv"
+        # if not 'csv' in request.files:
+        #     raise Exception('please include a csv file')
         if not 'q' in request.form:
             raise Exception('please include a q parameter with a question in it')
-        csv = request.files['csv']
+        # csv = request.files['csv']
+        csv = open(filename)
         q = request.form['q']
-        table_id = os.path.splitext(csv.filename)[0]
+        table_id = filename
         table_id = re.sub(r'\W+', '_', table_id)
 
         # it would be easy to do all this in memory but I'm lazy
-        stream = io.StringIO(csv.stream.read().decode("UTF8"), newline=None)
+        stream = io.StringIO(csv.read(), newline=None)
         base = table_id + "_" + str(uuid.uuid4())
         add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
         stream.seek(0)
@@ -211,6 +213,8 @@ def handle_request0(request):
         add_question.question_to_json(table_id, q, base + '.jsonl')
         annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
                                                      record)
+
+                                                     
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
