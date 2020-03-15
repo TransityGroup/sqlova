@@ -62,6 +62,7 @@ def csv_to_sqlite(table_id, csv_file_name, sqlite_file_name):
 def csv_stream_to_json(table_id, f, json_file_name):
     cf = csv.DictReader(f, delimiter=',')
     record = {}
+    # Column Names
     record['header'] = [(name or 'col{}'.format(i)) for i, name in enumerate(cf.fieldnames)]
     record['page_title'] = None
     record['types'] = ['text'] * len(cf.fieldnames)
@@ -73,6 +74,25 @@ def csv_stream_to_json(table_id, f, json_file_name):
         json.dump(record, fout)
         fout.write('\n')
     return record
+
+def sql_to_json(table_id,sql_path, json_file_name):
+
+    cf = csv.DictReader(sql_path, delimiter=',')
+    record = {}
+    # Column Names
+    record['header'] = [(name or 'col{}'.format(i)) for i, name in enumerate(cf.fieldnames)]
+    record['page_title'] = None
+    record['types'] = ['text'] * len(cf.fieldnames)
+    record['id'] = table_id
+    record['caption'] = None
+    record['rows'] = [list(row.values()) for row in cf]
+    record['name'] = get_table_name(table_id)
+    with open(json_file_name, 'a+') as fout:
+        json.dump(record, fout)
+        fout.write('\n')
+    return record
+
+
 
 def csv_to_json(table_id, csv_file_name, json_file_name):
     with open(csv_file_name) as f:

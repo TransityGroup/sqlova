@@ -82,13 +82,15 @@ if not args.split:
 #
 def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
-            num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=False, beam_size=4,
+            num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
             path_db=None, dset_name='test'):
 
     model.eval()
     model_bert.eval()
 
+    ## Sub in file path database for live database
     engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
+
     results = []
     for iB, t in enumerate(data_loader):
         nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(t, data_table, no_hs_t=True, no_sql_t=True)
@@ -148,6 +150,8 @@ def run_split(split):
     # Load data
     print("SPlit:" +split)
     dev_data, dev_table = load_wikisql_data(args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
+    
+    
     dev_loader = torch.utils.data.DataLoader(
         batch_size=args.bS,
         dataset=dev_data,
@@ -169,7 +173,7 @@ def run_split(split):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=args.EG)
+                          dset_name=split, EG=True)
 
     # Save results
     save_for_evaluation(path_save_for_evaluation, results, split)
@@ -206,11 +210,13 @@ def handle_request0(request):
         table_id = re.sub(r'\W+', '_', table_id)
 
         # Read the csv and generate a database & .tables.jsonl
+        # make the database
         stream = io.StringIO(csv.read(), newline=None)
         base = table_id + "_" + str(uuid.uuid4())
         add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
         stream.seek(0)
 
+        # make the table metadata
         record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
         stream.seek(0)
 
@@ -219,12 +225,75 @@ def handle_request0(request):
         annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
                                                      record)
 
-
+        # Create the standford nlp annotated tokenizer
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
-        print("~~~~~~~~~~~~`")
-        print("base")
-        print(base)
+
+
+        message = run_split(base)
+        code = 200
+
+        if not debug:
+            os.remove(base + '.db')
+            os.remove(base + '.jsonl')
+            os.remove(base + '.tables.jsonl')
+            os.remove(base + '_tok.jsonl')
+            os.remove('results_' + base + '.jsonl')
+            if 'result' in message:
+                message = message['result'][0]
+                del message['query']
+                del message['nlu']
+                del message['table_id']
+                message['params'] = message['sql_with_params'][1]
+                message['sql'] = message['sql_with_params'][0]
+                del message['sql_with_params']
+
+    except Exception as e:
+        message = { "error": str(e) }
+        code = 500
+
+    if debug:
+        message['base'] = base
+
+    return jsonify(message), code
+
+def handle_request1(request):
+    print("NEW CODE")
+    debug = 'debug' in request.form
+    base = ""
+    try:
+        filename = "data/test.csv"
+        # if not 'csv' in request.files:
+        #     raise Exception('please include a csv file')
+        if not 'q' in request.form:
+            raise Exception('please include a q parameter with a question in it')
+        # csv = request.files['csv']
+        csv = open(filename)
+        q = request.form['q']
+        table_id = filename
+        table_id = re.sub(r'\W+', '_', table_id)
+
+        # Read the csv and generate a database & .tables.jsonl
+        # make the database
+        stream = io.StringIO(csv.read(), newline=None)
+        base = table_id + "_" + str(uuid.uuid4())
+        add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
+        stream.seek(0)
+
+        # make the table metadata
+        record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
+        stream.seek(0)
+
+        # Markup the questions
+        add_question.question_to_json(table_id, q, base + '.jsonl')
+        annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
+                                                     record)
+
+        # Create the standford nlp annotated tokenizer
+        with open(base + '_tok.jsonl', 'a+') as fout:
+            fout.write(json.dumps(annotation) + '\n')
+
+
         message = run_split(base)
         code = 200
 
