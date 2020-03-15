@@ -41,6 +41,7 @@ import add_csv
 import add_question
 from flask import Flask, request
 from flask import jsonify
+from flask_cors import CORS
 import io
 import uuid
 import re
@@ -63,6 +64,7 @@ status = "Loading sqlova model, please wait"
 
 if not args.split:
     app = Flask(__name__)
+    CORS(app)
     @app.route('/', methods=['POST'])
     def run():
         if handle_request:
