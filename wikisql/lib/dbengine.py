@@ -13,8 +13,8 @@ num_re = re.compile(r'[-+]?\d*\.\d+|\d+')
 class DBEngine:
 
     def __init__(self, fdb, sqldb):
-        # self.db = records.Database('sqlite:///{}'.format(fdb))
-        self.db = records.Database("postgres://postgres:postgres@localhost:5432/honda_dev")
+        self.db = records.Database('sqlite:///{}'.format(fdb))
+        # self.db = records.Database("postgres://postgres:postgres@localhost:5432/honda_dev")
 
     def execute_query(self, table_id, query, *args, **kwargs):
         return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, *args, **kwargs)
