@@ -121,6 +121,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                 pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
             pr_sql_i = generate_sql_i(
                 pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
+            print("gen RECIVED")
         else:
             # Execution guided decoding
             prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
@@ -146,7 +147,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["nlu"] = nlu[b]
             results1["sql"] = pr_sql_q1
             results1["sql_with_params"] = pr_sql_q1_base
-            pirnt("RESULTS RECIVED")
+            print("RESULTS RECIVED")
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
                 pr_sql_i1, ordered=True),columns=columns, types=types, lower=False)
             results1["answer"] = rr
