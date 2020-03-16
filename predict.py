@@ -159,8 +159,10 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                 pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
             print("Query Executed")
             results1["answer"] = rr
+            print(results1)
             results.append(results1)
 
+    print("resi;ts",results)
     return results
 
 
@@ -204,7 +206,7 @@ def run_split(split, columns, types):
                           path_db=args.data_path,
                           st_pos=0,
                           dset_name=split, EG=False, columns=columns, types=types)
-
+    print("RESULTS Gathered")
     # Save results
     save_for_evaluation(path_save_for_evaluation, results, split)
     message = {
