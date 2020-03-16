@@ -192,7 +192,7 @@ def run_split(split, columns, types):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=True, columns=columns, types=types)
+                          dset_name=split, EG=False, columns=columns, types=types)
 
     message = {
         "split": split,
