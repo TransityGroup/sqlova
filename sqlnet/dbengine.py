@@ -101,14 +101,16 @@ class DBEngine:
         where_map = {}
         for col_index, op, val in conditions:
             print("looping")
-            if lower and (isinstance(val, str) or isinstance(val, str)):
+            print(types[col_index-1])
+            if isinstance(val, str):
                 val = val.lower()
+                print("lowered")
             if types[col_index-1] == 'real' and not isinstance(val, (int, float)):
                 try:
-                    # print('!!!!!!value of val is: ', val, 'type is: ', type(val))
+                    print('!!!!!!value of val is: ', val, 'type is: ', type(val))
                     # val = float(parse_decimal(val)) # somehow it generates error.
                     val = float(parse_decimal(val, locale='en_US'))
-                    # print('!!!!!!After: val', val)
+                    print('!!!!!!After: val', val)
 
                 except NumberFormatError as e:
                     try:
@@ -117,9 +119,11 @@ class DBEngine:
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
+            print("if tree done")
             where_clause.append('{column} {condition} {value}'.format(
                 columns[col_index-1], cond_ops[op], col_index))
             where_map['col{}'.format(col_index)] = val
+            print("appended")
         print("generatign where")
         where_str = ''
         if where_clause:
