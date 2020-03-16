@@ -82,7 +82,7 @@ class DBEngine:
         print(self.generateDBSQL("trips", select_index,
                                  aggregation_index, conditions, columns, types, lower=True))
 
-        out = self.db.query(query, **where_map)
+        out = self.pdb.query(query, **where_map)
 
         return [o.result for o in out]
 
@@ -94,6 +94,12 @@ class DBEngine:
         #     schema[c] = t
 
         print("Generating")
+        print("SQLENGINIE", columns)
+        print(table_id)
+        print(select_index)
+        print(aggregation_index)
+        print(conditions)
+
         select = columns[select_index]
         agg = agg_ops[aggregation_index]
         if agg:
