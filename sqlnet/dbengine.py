@@ -20,7 +20,7 @@ class DBEngine:
 
     def __init__(self, fdb):
         # fdb = 'data/test.db'
-        self.db = records.Database('sqlite:///{}'.format(fdb))
+        # self.db = records.Database('sqlite:///{}'.format(fdb))
         self.pdb = records.Database(
             "postgres://postgres:postgres@localhost:5432/honda_dev")
 
