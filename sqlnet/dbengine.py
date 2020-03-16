@@ -26,7 +26,9 @@ class DBEngine:
 
     def execute_query(self, table_id, query, columns, types, *args, **kwargs):
         print("EXECUTING QUERY")
-        return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
+        # return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
+        return self.generateDBSQL("trips", select_index,
+                                 aggregation_index, conditions, columns, types, lower=True)
 
     def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, lower=True):
         if not table_id.startswith('table'):
@@ -123,8 +125,7 @@ class DBEngine:
         print(query)
 
         out = self.pdb.query(query)
-        print([o.result for o in out])
-        return query
+        return [o.result for o in out]
 
     def execute_return_query(self, table_id, select_index, aggregation_index, conditions, lower=True):
         print("EXECUTING RETURN QUERY")
