@@ -126,9 +126,11 @@ class DBEngine:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
         query = 'SELECT {} AS result FROM {} {}'.format(
             select, table_id, where_str)
+        print(query)
         return query
 
     def execute_return_query(self, table_id, select_index, aggregation_index, conditions, lower=True):
+        print("EXECUTING RETURN QUERY")
         if not table_id.startswith('table'):
             table_id = 'table_{}'.format(table_id.replace('-', '_'))
         table_info = self.db.query('SELECT sql from sqlite_master WHERE tbl_name = :name', name=table_id).all()[
