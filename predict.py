@@ -222,8 +222,7 @@ def handle_request0(request):
 
         # make the table metadata
         record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
-        print(record)
-        print(add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl'))
+        add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl')
 
         stream.seek(0)
 
