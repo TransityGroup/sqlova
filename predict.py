@@ -206,7 +206,7 @@ def handle_request0(request):
         if not 'q' in request.form:
             raise Exception('please include a q parameter with a question in it')
         # csv = request.files['csv']
-        # csv = open(filename)
+        csv = open(filename)
         q = request.form['q']
         table_id = filename
         table_id = re.sub(r'\W+', '_', table_id)
