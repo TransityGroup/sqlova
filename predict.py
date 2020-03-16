@@ -272,7 +272,7 @@ def handle_request0(request):
         print("RUNNING")
         message = run_split(base, record2['header'], record2['types'])
         code = 200
-
+        print("split run")
         if not debug:
             os.remove(base + '.db')
             os.remove(base + '.jsonl')
@@ -289,6 +289,7 @@ def handle_request0(request):
                 del message['sql_with_params']
 
     except Exception as e:
+        print(e)
         message = {"error": str(e)}
         code = 500
 
