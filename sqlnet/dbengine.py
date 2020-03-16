@@ -91,6 +91,8 @@ class DBEngine:
         # for tup in schema_str.split(', '):
         #     c, t = tup.split()
         #     schema[c] = t
+
+        print("Generating")
         select = columns[select_index-1]
         agg = agg_ops[aggregation_index]
         if agg:
@@ -98,6 +100,7 @@ class DBEngine:
         where_clause = []
         where_map = {}
         for col_index, op, val in conditions:
+            print("looping")
             if lower and (isinstance(val, str) or isinstance(val, str)):
                 val = val.lower()
             if types[col_index-1] == 'real' and not isinstance(val, (int, float)):
@@ -117,7 +120,7 @@ class DBEngine:
             where_clause.append('{column} {condition} {value}'.format(
                 columns[col_index-1], cond_ops[op], col_index))
             where_map['col{}'.format(col_index)] = val
-
+        print("generatign where")
         where_str = ''
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
