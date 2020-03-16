@@ -93,7 +93,7 @@ if not args.split:
 def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
             num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
-            path_db=None, dset_name='test', columns=[]):
+            path_db=None, dset_name='test', columns=[], types=[]):
 
     model.eval()
     model_bert.eval()
@@ -146,7 +146,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["sql"] = pr_sql_q1
             results1["sql_with_params"] = pr_sql_q1_base
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
-                pr_sql_i1, ordered=True),columns=columns, lower=False)
+                pr_sql_i1, ordered=True),columns=columns, types=types, lower=False)
             results1["answer"] = rr
             results.append(results1)
 
@@ -164,7 +164,7 @@ model, model_bert, tokenizer, bert_config = get_models(
     args, BERT_PT_PATH, trained=True, path_model_bert=path_model_bert, path_model=path_model)
 
 
-def run_split(split, columns):
+def run_split(split, columns,types):
     # Load data
     print("SPlit:" + split)
     dev_data, dev_table = load_wikisql_data(
@@ -191,7 +191,7 @@ def run_split(split, columns):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=False, columns=columns)
+                          dset_name=split, EG=False, columns=columns,types=types)
 
     # Save results
     save_for_evaluation(path_save_for_evaluation, results, split)
@@ -208,7 +208,7 @@ def serialize(o):
 
 
 if args.split:
-    message = run_split(args.split)
+    message = run_split(args.split, [],[])
     json.dumps(message, indent=2, default=serialize)
     exit(0)
 
@@ -255,7 +255,7 @@ def handle_request0(request):
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
-        message = run_split(base, columns)
+        message = run_split(base, record2['columns'],record2['types'])
         code = 200
 
         if not debug:
@@ -321,7 +321,7 @@ def handle_request1(request):
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
-        message = run_split(base)
+        message = run_split(base,[],[])
         code = 200
 
         if not debug:
