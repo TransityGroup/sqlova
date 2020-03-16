@@ -206,6 +206,7 @@ def handle_request0(request):
         if not 'q' in request.form:
             raise Exception('please include a q parameter with a question in it')
         # csv = request.files['csv']
+
         csv = open(filename)
         q = request.form['q']
         table_id = filename
@@ -221,7 +222,9 @@ def handle_request0(request):
 
         # make the table metadata
         record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
-        # record = add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl')
+        print(record)
+        print(add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl'))
+
         stream.seek(0)
 
         # Markup the questions
