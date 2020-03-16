@@ -85,7 +85,7 @@ def sql_to_json(table_id, sql_path, json_file_name):
     types = []
     for column in schema.as_dict():
         columns.append(column['column_name'])
-        type = column['data_type']
+        type = str(column['data_type'])
         # TODO: add more datatypes
         print(type)
         if((type is 'integer') or (type is 'numeric')):
