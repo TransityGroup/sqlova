@@ -18,11 +18,10 @@ cond_ops = ['=', '>', '<', 'OP']
 
 class DBEngine:
 
-    def __init__(self, fdb):
+    def __init__(self, pdb="postgres://postgres:postgres@localhost:5432/honda_dev"):
         # fdb = 'data/test.db'
         # self.db = records.Database('sqlite:///{}'.format(fdb))
-        self.pdb = records.Database(
-            "postgres://postgres:postgres@localhost:5432/honda_dev")
+        self.pdb = records.Database(pdb)
 
     def execute_query(self, table_id, query, columns, types, *args, **kwargs):
         print("EXECUTING QUERY")

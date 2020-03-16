@@ -96,12 +96,14 @@ if not args.split:
 def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
             num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
-            path_db=None, dset_name='test', columns=[], types=[]):
+            path_db=None, dset_name='test', columns=[], types=[], db_path=""):
 
     model.eval()
     model_bert.eval()
-    # Sub in file path database for live database
-    engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
+
+
+    engine = DBEngine(db_path)
+
     results = []
     for iB, t in enumerate(data_loader):
         nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
@@ -166,7 +168,7 @@ model, model_bert, tokenizer, bert_config = get_models(
     args, BERT_PT_PATH, trained=True, path_model_bert=path_model_bert, path_model=path_model)
 
 
-def run_split(split, columns, types):
+def run_split(split, columns, types,db_path):
     # Load data
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
@@ -192,7 +194,7 @@ def run_split(split, columns, types):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=False, columns=columns, types=types)
+                          dset_name=split, EG=False, columns=columns, types=types, db_path=db_path)
 
     message = {
         "split": split,
@@ -217,6 +219,7 @@ def handle_request0(request):
     base = ""
     try:
         filename = "data/test.csv"
+        db_path = "postgres://postgres:postgres@localhost:5432/honda_dev"
         # if not 'csv' in request.files:
         #     raise Exception('please include a csv file')
         if not 'q' in request.form:
@@ -241,7 +244,7 @@ def handle_request0(request):
             fout.write(json.dumps(annotation) + '\n')
 
         # Genereate the query, and run the result on SQL.
-        message = run_split(base, record['header'], record['types'])
+        message = run_split(base, record['header'], record['types'], db_path)
         code = 200
         if not debug:
             os.remove(base + '.jsonl')
