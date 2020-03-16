@@ -19,8 +19,11 @@ class DBEngine:
     def __init__(self, fdb):
         #fdb = 'data/test.db'
         self.db = records.Database('sqlite:///{}'.format(fdb))
+        # self.db = records.Database("postgres://postgres:postgres@localhost:5432/honda_dev")
+
 
     def execute_query(self, table_id, query, *args, **kwargs):
+        print("EXECUTING QUERY")
         return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, *args, **kwargs)
 
     def execute(self, table_id, select_index, aggregation_index, conditions, lower=True):
@@ -68,7 +71,7 @@ class DBEngine:
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
         query = 'SELECT {} AS result FROM {} {}'.format(select, table_id, where_str)
-        #print query
+        print(query)
         out = self.db.query(query, **where_map)
 
 
