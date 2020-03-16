@@ -24,7 +24,6 @@ class DBEngine:
         self.pdb = records.Database(
             "postgres://postgres:postgres@localhost:5432/honda_dev")
 
-SELECT AVG(trip_time) AS result FROM trips
     def execute_query(self, table_id, query, columns, types, *args, **kwargs):
         print("EXECUTING QUERY")
         # return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
