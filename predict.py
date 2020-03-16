@@ -163,7 +163,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             print(results1)
             results.append(results1)
 
-    print("resi;ts",results)
+    print("resi;ts", results)
     return results
 
 
@@ -296,7 +296,18 @@ def handle_request0(request):
     if debug:
         message['base'] = base
 
-    return json.dumps(message), code
+    def encode_complex(obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, complex):
+            return [obj.real, obj.imag]
+        return str(obj)
+        
+    return json.dumps(message, default=encode_complex), code
 
 
 def handle_request1(request):
