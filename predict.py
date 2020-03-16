@@ -278,7 +278,6 @@ def handle_request0(request):
             os.remove(base + '.jsonl')
             os.remove(base + '.tables.jsonl')
             os.remove(base + '_tok.jsonl')
-            os.remove('results_' + base + '.jsonl')
             if 'result' in message:
                 message = message['result'][0]
                 # del message['query']
