@@ -49,7 +49,7 @@ import numpy as np
 import torch
 from sqlnet.dbengine import DBEngine
 from sqlova.utils.utils_wikisql import get_fields, get_g, get_g_wvi_corenlp, get_wemb_bert, pred_sw_se, convert_pr_wvi_to_string, generate_sql_i
-from sqlova.utils.utils_wikisql import sort_and_generate_pr_w,generate_sql_q, generate_sql_q_base,load_wikisql_data
+from sqlova.utils.utils_wikisql import sort_and_generate_pr_w, generate_sql_q, generate_sql_q_base, load_wikisql_data
 
 # Set up hyper parameters and paths
 parser = argparse.ArgumentParser()
@@ -106,9 +106,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     for iB, t in enumerate(data_loader):
         nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
             t, data_table, no_hs_t=True, no_sql_t=True)
-        print("110")
         g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
-        print("111")
         g_wvi_corenlp = get_g_wvi_corenlp(t)
         wemb_n, wemb_h, l_n, l_hpu, l_hs, \
             nlu_tt, t_to_tt_idx, tt_to_t_idx \
@@ -194,7 +192,7 @@ def run_split(split, columns, types):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=False, columns=columns, types=types)
+                          dset_name=split, EG=True, columns=columns, types=types)
 
     message = {
         "split": split,
@@ -204,7 +202,7 @@ def run_split(split, columns, types):
 
 
 def serialize(o):
-    if isinstance(o, int64):
+    if isinstance(o, np.int64):
         return int(o)
 
 

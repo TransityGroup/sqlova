@@ -66,6 +66,7 @@ class DBEngine:
                     try:
                         # need to understand and debug this part.
                         val = float(num_re.findall(val)[0])
+                        print(e)
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
@@ -117,6 +118,7 @@ class DBEngine:
                     try:
                         # need to understand and debug this part.
                         val = float(num_re.findall(val)[0])
+                        print(e)
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
@@ -138,7 +140,7 @@ class DBEngine:
         print("EXECUTING RETURN QUERY")
         if not table_id.startswith('table'):
             table_id = 'table_{}'.format(table_id.replace('-', '_'))
-        table_info = self.db.query('SELECT sql from sqlite_master WHERE tbl_name = :name', name=table_id).all()[
+        table_info = self.pdb.query('SELECT sql from sqlite_master WHERE tbl_name = :name', name=table_id).all()[
             0].sql.replace('\n', '')
         schema_str = schema_re.findall(table_info)[0]
         schema = {}
@@ -162,6 +164,7 @@ class DBEngine:
                     # print('!!!!!!After: val', val)
 
                 except NumberFormatError as e:
+                    print(e)
                     val = float(num_re.findall(val)[0])
             where_clause.append('col{} {} :col{}'.format(
                 col_index, cond_ops[op], col_index))
@@ -172,12 +175,12 @@ class DBEngine:
         query = 'SELECT {} AS result FROM {} {}'.format(
             select, table_id, where_str)
         # print query
-        out = self.db.query(query, **where_map)
+        out = self.pdb.query(query, **where_map)
 
         return [o.result for o in out], query
 
     def show_table(self, table_id):
         if not table_id.startswith('table'):
             table_id = 'table_{}'.format(table_id.replace('-', '_'))
-        rows = self.db.query('select * from ' + table_id)
+        rows = self.pdb.query('select * from ' + table_id)
         print(rows.dataset)
