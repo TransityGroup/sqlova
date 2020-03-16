@@ -39,7 +39,7 @@ class DBEngine:
         print(aggregation_index)
         print(conditions)
 
-        table_info = self.db.query('SELECT sql from sqlite_master WHERE tbl_name = :name', name=table_id).all()[
+        table_info = self.pdb.query('SELECT sql from sqlite_master WHERE tbl_name = :name', name=table_id).all()[
             0].sql.replace('\n', '')
         schema_str = schema_re.findall(table_info)[0]
         schema = {}
