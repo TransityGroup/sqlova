@@ -101,11 +101,11 @@ class DBEngine:
         where_map = {}
         for col_index, op, val in conditions:
             print("looping")
-            print(types[col_index-1])
+            print(types[col_index])
             if isinstance(val, str):
                 val = val.lower()
                 print("lowered")
-            if types[col_index-1] == 'real' and not isinstance(val, (int, float)):
+            if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
                     print('!!!!!!value of val is: ', val, 'type is: ', type(val))
                     # val = float(parse_decimal(val)) # somehow it generates error.
