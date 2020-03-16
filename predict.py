@@ -46,6 +46,7 @@ from flask import jsonify
 from flask_cors import CORS
 import io
 import uuid
+import simplejson as json
 import re
 
 # Set up hyper parameters and paths
@@ -295,7 +296,7 @@ def handle_request0(request):
     if debug:
         message['base'] = base
 
-    return jsonify(message), code
+    return json.dumps(message), code
 
 
 def handle_request1(request):
