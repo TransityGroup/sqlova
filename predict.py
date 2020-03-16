@@ -106,16 +106,16 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     for iB, t in enumerate(data_loader):
         print("ENUMERATED")
         print("108")
-        # nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
-        #     t, data_table, no_hs_t=True, no_sql_t=True)
-        # print("110")
-        # g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
-        # print("111")
-        # g_wvi_corenlp = get_g_wvi_corenlp(t)
-        # wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-        #     nlu_tt, t_to_tt_idx, tt_to_t_idx \
-        #     = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
-        #                     num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
+        nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
+            t, data_table, no_hs_t=True, no_sql_t=True)
+        print("110")
+        g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
+        print("111")
+        g_wvi_corenlp = get_g_wvi_corenlp(t)
+        wemb_n, wemb_h, l_n, l_hpu, l_hs, \
+            nlu_tt, t_to_tt_idx, tt_to_t_idx \
+            = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
+                            num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
         # print("117")
         # if not EG:
