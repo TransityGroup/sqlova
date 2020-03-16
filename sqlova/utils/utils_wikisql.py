@@ -71,8 +71,6 @@ def load_wikisql_data(path_wikisql, mode='train', toy_model=False, toy_size=10, 
 
             t1 = json.loads(line.strip())
             table[t1['id']] = t1
-    print("data",data)
-    print("table",table)
     return data, table
 
 

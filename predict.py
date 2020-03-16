@@ -141,7 +141,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
-
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
             results1 = {}
             results1["query"] = pr_sql_i1
@@ -151,7 +150,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["sql_with_params"] = pr_sql_q1_base
             print("RESULTS RECIVED")
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
-                pr_sql_i1, ordered=True),columns=columns, types=types, lower=False)
+                pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
             results1["answer"] = rr
             results.append(results1)
 
@@ -169,13 +168,13 @@ model, model_bert, tokenizer, bert_config = get_models(
     args, BERT_PT_PATH, trained=True, path_model_bert=path_model_bert, path_model=path_model)
 
 
-def run_split(split, columns,types):
+def run_split(split, columns, types):
     # Load data
     print("SPlit:" + split)
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
-    print(dev_data)
-    print(dev_table)
+    print("ddata", dev_data)
+    print("dtable", dev_table)
     dev_loader = torch.utils.data.DataLoader(
         batch_size=args.bS,
         dataset=dev_data,
@@ -183,6 +182,7 @@ def run_split(split, columns,types):
         num_workers=1,
         collate_fn=lambda x: x  # now dictionary values are not merged!
     )
+    print("dev loader done")
 
     # Run prediction
     with torch.no_grad():
@@ -197,7 +197,7 @@ def run_split(split, columns,types):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=False, columns=columns,types=types)
+                          dset_name=split, EG=False, columns=columns, types=types)
 
     # Save results
     save_for_evaluation(path_save_for_evaluation, results, split)
@@ -214,7 +214,7 @@ def serialize(o):
 
 
 if args.split:
-    message = run_split(args.split, [],[])
+    message = run_split(args.split, [], [])
     json.dumps(message, indent=2, default=serialize)
     exit(0)
 
@@ -262,7 +262,7 @@ def handle_request0(request):
             fout.write(json.dumps(annotation) + '\n')
 
         print("RUNNING")
-        message = run_split(base, record2['header'],record2['types'])
+        message = run_split(base, record2['header'], record2['types'])
         code = 200
 
         if not debug:
@@ -328,7 +328,7 @@ def handle_request1(request):
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
-        message = run_split(base,[],[])
+        message = run_split(base, [], [])
         code = 200
 
         if not debug:
