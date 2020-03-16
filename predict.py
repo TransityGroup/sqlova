@@ -138,6 +138,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
+
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
             results1 = {}
             results1["query"] = pr_sql_i1
@@ -145,6 +146,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["nlu"] = nlu[b]
             results1["sql"] = pr_sql_q1
             results1["sql_with_params"] = pr_sql_q1_base
+            pirnt("RESULTS RECIVED")
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
                 pr_sql_i1, ordered=True),columns=columns, types=types, lower=False)
             results1["answer"] = rr
