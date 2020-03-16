@@ -102,6 +102,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
     print("engine on")
     print(data_loader)
+    print(enumerate(data_loader))
     results = []
     for iB, t in enumerate(data_loader):
         print("ENUMERATED")
@@ -138,6 +139,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             pr_wv_str = None
             pr_wv_str_wp = None
 
+        print("gendf RECIVED")
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
@@ -173,8 +175,7 @@ def run_split(split, columns, types):
     print("SPlit:" + split)
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
-    print("ddata", dev_data)
-    print("dtable", dev_table)
+
     dev_loader = torch.utils.data.DataLoader(
         batch_size=args.bS,
         dataset=dev_data,
