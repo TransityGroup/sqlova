@@ -102,7 +102,8 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
     print("engine on")
     print(data_loader)
-    print(enumerate(data_loader))
+    for iB, t in enumerate(data_loader):
+        print(iB, t)
     results = []
     for iB, t in enumerate(data_loader):
         print("ENUMERATED")
