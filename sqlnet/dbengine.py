@@ -78,7 +78,7 @@ class DBEngine:
             select, table_id, where_str)
 
         print(query)
-        print(self.generateDBSQL(table_id, select_index,
+        print(self.generateDBSQL("trips", select_index,
                                  aggregation_index, conditions, columns, types, lower=True))
 
         out = self.db.query(query, **where_map)
@@ -98,20 +98,13 @@ class DBEngine:
         if agg:
             select = '{}({})'.format(agg, select)
         where_clause = []
-        where_map = {}
         for col_index, op, val in conditions:
-            print("looping")
             print(types[col_index])
             if isinstance(val, str):
                 val = val.lower()
-                print("lowered")
             if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
-                    print('!!!!!!value of val is: ', val, 'type is: ', type(val))
-                    # val = float(parse_decimal(val)) # somehow it generates error.
                     val = float(parse_decimal(re.search(r'\d+', val).group(), locale='en_US'))
-                    print('!!!!!!After: val', val)
-
                 except NumberFormatError as e:
                     try:
                         # need to understand and debug this part.
@@ -119,24 +112,18 @@ class DBEngine:
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
-            print("if tree done")
-            print(columns[col_index],cond_ops[op],val)
-            print(where_clause)
-            print('{} {} {}'.format(
-                columns[col_index], cond_ops[op], val))
             where_clause.append('{} {} {}'.format(
                 columns[col_index], cond_ops[op], val))
-            print(where_clause)
-            # where_map['col{}'.format(col_index)] = val
-            print("appended")
 
-        print("generatign where")
         where_str = ''
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
         query = 'SELECT {} AS result FROM {} {}'.format(
             select, table_id, where_str)
         print(query)
+
+        out = self.pdb.query(query)
+        print([o.result for o in out])
         return query
 
     def execute_return_query(self, table_id, select_index, aggregation_index, conditions, lower=True):
