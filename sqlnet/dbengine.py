@@ -123,6 +123,7 @@ class DBEngine:
             print(columns[col_index],cond_ops[op],val)
             where_clause.append('{column} {condition} {value}'.format(
                 columns[col_index], cond_ops[op], val))
+            print(where_clause)
             # where_map['col{}'.format(col_index)] = val
             print("appended")
 
