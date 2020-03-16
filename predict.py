@@ -208,7 +208,7 @@ def run_split(split, columns, types):
                           dset_name=split, EG=False, columns=columns, types=types)
     print("RESULTS Gathered")
     # Save results
-    save_for_evaluation(path_save_for_evaluation, results, split)
+    # save_for_evaluation(path_save_for_evaluation, results, split)
     message = {
         "split": split,
         "result": results
