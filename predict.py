@@ -117,32 +117,32 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
                             num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
-        # print("117")
-        # if not EG:
-        #     # No Execution guided decoding
-        #     s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(
-        #         wemb_n, l_n, wemb_h, l_hpu, l_hs)
-        #     pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wvi = pred_sw_se(
-        #         s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, )
-        #     pr_wv_str, pr_wv_str_wp = convert_pr_wvi_to_string(
-        #         pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
-        #     pr_sql_i = generate_sql_i(
-        #         pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
-        #     print("gen RECIVED")
-        # else:
-        #     # Execution guided decoding
-        #     prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
-        #                                                                                     l_hs, engine, tb,
-        #                                                                                     nlu_t, nlu_tt,
-        #                                                                                     tt_to_t_idx, nlu,
-        #                                                                                     beam_size=beam_size)
-        #     # sort and generate
-        #     pr_wc, pr_wo, pr_wv, pr_sql_i = sort_and_generate_pr_w(pr_sql_i)
-        #     # Following variables are just for consistency with no-EG case.
-        #     pr_wvi = None  # not used
-        #     pr_wv_str = None
-        #     pr_wv_str_wp = None
-
+        print("117")
+        if not EG:
+            # No Execution guided decoding
+            s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(
+                wemb_n, l_n, wemb_h, l_hpu, l_hs)
+            pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wvi = pred_sw_se(
+                s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, )
+            pr_wv_str, pr_wv_str_wp = convert_pr_wvi_to_string(
+                pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
+            pr_sql_i = generate_sql_i(
+                pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
+            print("gen RECIVED")
+        else:
+            # Execution guided decoding
+            prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
+                                                                                            l_hs, engine, tb,
+                                                                                            nlu_t, nlu_tt,
+                                                                                            tt_to_t_idx, nlu,
+                                                                                            beam_size=beam_size)
+            # sort and generate
+            pr_wc, pr_wo, pr_wv, pr_sql_i = sort_and_generate_pr_w(pr_sql_i)
+            # Following variables are just for consistency with no-EG case.
+            pr_wvi = None  # not used
+            pr_wv_str = None
+            pr_wv_str_wp = None
+        print("145")
         # print("gendf RECIVED")
         # pr_sql_q = generate_sql_q(pr_sql_i, tb)
         # pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
