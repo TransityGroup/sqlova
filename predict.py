@@ -274,19 +274,19 @@ def handle_request0(request):
         code = 200
         print("split run")
         if not debug:
-            os.remove(base + '.db')
+            # os.remove(base + '.db')
             os.remove(base + '.jsonl')
             os.remove(base + '.tables.jsonl')
             os.remove(base + '_tok.jsonl')
             os.remove('results_' + base + '.jsonl')
             if 'result' in message:
                 message = message['result'][0]
-                del message['query']
-                del message['nlu']
-                del message['table_id']
+                # del message['query']
+                # del message['nlu']
+                # del message['table_id']
                 message['params'] = message['sql_with_params'][1]
                 message['sql'] = message['sql_with_params'][0]
-                del message['sql_with_params']
+                # del message['sql_with_params']
 
     except Exception as e:
         print(e)
