@@ -214,15 +214,15 @@ def handle_request0(request):
         # Read the csv and generate a database & .tables.jsonl
         # make the database
 
-        # stream = io.StringIO(csv.read(), newline=None)
-        # base = table_id + "_" + str(uuid.uuid4())
-        # add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
-        # stream.seek(0)
+        stream = io.StringIO(csv.read(), newline=None)
+        base = table_id + "_" + str(uuid.uuid4())
+        add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
+        stream.seek(0)
 
         # make the table metadata
-        # record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
-        record = add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl')
-        # stream.seek(0)
+        record = add_csv.csv_stream_to_json(table_id, stream, base + '.tables.jsonl')
+        # record = add_csv.sql_to_json(table_id, 'tabled id blablbla', base + '.tables.jsonl')
+        stream.seek(0)
 
         # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')
