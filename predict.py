@@ -30,24 +30,26 @@
 #
 # Results will be in a file called results_<split>.jsonl in the result_path.
 
+import re
+import simplejson as json
+import uuid
+import io
+from flask_cors import CORS
+from flask import jsonify
+from flask import Flask, request
+import add_question
+import add_csv
+import annotate_ws
+from wikisql.lib.query import Query
+from train import construct_hyper_param, get_models
 import threading
 import argparse
 import os
+import numpy as np
+import torch
 from sqlnet.dbengine import DBEngine
-from sqlova.utils.utils_wikisql import *
-from train import construct_hyper_param, get_models
-from wikisql.lib.query import Query
-
-import annotate_ws
-import add_csv
-import add_question
-from flask import Flask, request
-from flask import jsonify
-from flask_cors import CORS
-import io
-import uuid
-import simplejson as json
-import re
+from sqlova.utils.utils_wikisql import get_fields, get_g, get_g_wvi_corenlp, get_wemb_bert, pred_sw_se, convert_pr_wvi_to_string, generate_sql_i
+from sqlova.utils.utils_wikisql import sort_and_generate_pr_w,generate_sql_q, generate_sql_q_base,load_wikisql_data
 
 # Set up hyper parameters and paths
 parser = argparse.ArgumentParser()
@@ -194,7 +196,6 @@ def run_split(split, columns, types):
                           st_pos=0,
                           dset_name=split, EG=False, columns=columns, types=types)
 
-
     message = {
         "split": split,
         "result": results
@@ -224,22 +225,18 @@ def handle_request0(request):
             raise Exception(
                 'please include a q parameter with a question in it')
 
-
         # csv = open(filename)
         q = request.form['q']
         table_id = filename
         table_id = re.sub(r'\W+', '_', table_id)
 
-
         record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
-
 
         # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')
         annotation = annotate_ws.annotate_example_ws(
             add_question.encode_question(table_id, q), record)
-
 
         # Create the standford nlp annotated tokenizer
         with open(base + '_tok.jsonl', 'a+') as fout:
