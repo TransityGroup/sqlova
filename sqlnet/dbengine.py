@@ -93,7 +93,7 @@ class DBEngine:
         #     schema[c] = t
 
         print("Generating")
-        select = columns[select_index-1]
+        select = columns[select_index]
         agg = agg_ops[aggregation_index]
         if agg:
             select = '{}({})'.format(agg, select)
@@ -113,7 +113,7 @@ class DBEngine:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
             where_clause.append('{} {} {}'.format(
-                columns[col_index], cond_ops[op], val))
+                columns[col_index-1], cond_ops[op], val))
 
         where_str = ''
         if where_clause:
