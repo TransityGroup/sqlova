@@ -106,59 +106,59 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     for iB, t in enumerate(data_loader):
         print("ENUMERATED")
         print("108")
-        nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
-            t, data_table, no_hs_t=True, no_sql_t=True)
-        print("110")
-        g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
-        print("111")
-        g_wvi_corenlp = get_g_wvi_corenlp(t)
-        wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-            nlu_tt, t_to_tt_idx, tt_to_t_idx \
-            = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
-                            num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
+        # nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
+        #     t, data_table, no_hs_t=True, no_sql_t=True)
+        # print("110")
+        # g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
+        # print("111")
+        # g_wvi_corenlp = get_g_wvi_corenlp(t)
+        # wemb_n, wemb_h, l_n, l_hpu, l_hs, \
+        #     nlu_tt, t_to_tt_idx, tt_to_t_idx \
+        #     = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
+        #                     num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
-        print("117")
-        if not EG:
-            # No Execution guided decoding
-            s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(
-                wemb_n, l_n, wemb_h, l_hpu, l_hs)
-            pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wvi = pred_sw_se(
-                s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, )
-            pr_wv_str, pr_wv_str_wp = convert_pr_wvi_to_string(
-                pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
-            pr_sql_i = generate_sql_i(
-                pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
-            print("gen RECIVED")
-        else:
-            # Execution guided decoding
-            prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
-                                                                                            l_hs, engine, tb,
-                                                                                            nlu_t, nlu_tt,
-                                                                                            tt_to_t_idx, nlu,
-                                                                                            beam_size=beam_size)
-            # sort and generate
-            pr_wc, pr_wo, pr_wv, pr_sql_i = sort_and_generate_pr_w(pr_sql_i)
-            # Following variables are just for consistency with no-EG case.
-            pr_wvi = None  # not used
-            pr_wv_str = None
-            pr_wv_str_wp = None
+        # print("117")
+        # if not EG:
+        #     # No Execution guided decoding
+        #     s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(
+        #         wemb_n, l_n, wemb_h, l_hpu, l_hs)
+        #     pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wvi = pred_sw_se(
+        #         s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, )
+        #     pr_wv_str, pr_wv_str_wp = convert_pr_wvi_to_string(
+        #         pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
+        #     pr_sql_i = generate_sql_i(
+        #         pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
+        #     print("gen RECIVED")
+        # else:
+        #     # Execution guided decoding
+        #     prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
+        #                                                                                     l_hs, engine, tb,
+        #                                                                                     nlu_t, nlu_tt,
+        #                                                                                     tt_to_t_idx, nlu,
+        #                                                                                     beam_size=beam_size)
+        #     # sort and generate
+        #     pr_wc, pr_wo, pr_wv, pr_sql_i = sort_and_generate_pr_w(pr_sql_i)
+        #     # Following variables are just for consistency with no-EG case.
+        #     pr_wvi = None  # not used
+        #     pr_wv_str = None
+        #     pr_wv_str_wp = None
 
-        print("gendf RECIVED")
-        pr_sql_q = generate_sql_q(pr_sql_i, tb)
-        pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
+        # print("gendf RECIVED")
+        # pr_sql_q = generate_sql_q(pr_sql_i, tb)
+        # pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
-        for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
-            results1 = {}
-            results1["query"] = pr_sql_i1
-            results1["table_id"] = tb[b]["id"]
-            results1["nlu"] = nlu[b]
-            results1["sql"] = pr_sql_q1
-            results1["sql_with_params"] = pr_sql_q1_base
-            print("RESULTS RECIVED")
-            rr = engine.execute_query(tb[b]["id"], Query.from_dict(
-                pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
-            results1["answer"] = rr
-            results.append(results1)
+        # for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
+        #     results1 = {}
+        #     results1["query"] = pr_sql_i1
+        #     results1["table_id"] = tb[b]["id"]
+        #     results1["nlu"] = nlu[b]
+        #     results1["sql"] = pr_sql_q1
+        #     results1["sql_with_params"] = pr_sql_q1_base
+        #     print("RESULTS RECIVED")
+        #     rr = engine.execute_query(tb[b]["id"], Query.from_dict(
+        #         pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
+        #     results1["answer"] = rr
+        #     results.append(results1)
 
     return results
 
