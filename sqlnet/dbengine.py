@@ -122,9 +122,9 @@ class DBEngine:
             print("if tree done")
             print(columns[col_index],cond_ops[op],val)
             print(where_clause)
-            print('{column} {condition} {value}'.format(
+            print('{} {} {}'.format(
                 columns[col_index], cond_ops[op], val))
-            where_clause.append('{column} {condition} {value}'.format(
+            where_clause.append('{} {} {}'.format(
                 columns[col_index], cond_ops[op], val))
             print(where_clause)
             # where_map['col{}'.format(col_index)] = val
