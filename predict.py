@@ -101,6 +101,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
     # Sub in file path database for live database
     engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
     print("engine on")
+    print(data_loader)
     results = []
     for iB, t in enumerate(data_loader):
         print("ENUMERATED")
@@ -173,7 +174,8 @@ def run_split(split, columns,types):
     print("SPlit:" + split)
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
-
+    print(dev_data)
+    print(dev_table)
     dev_loader = torch.utils.data.DataLoader(
         batch_size=args.bS,
         dataset=dev_data,
