@@ -18,7 +18,8 @@
 #   python annotate_ws.py --din $PWD --dout $PWD --split playground
 # Then we're ready to run prediction on the split with predict.py
 
-import argparse, csv, json
+import argparse, csv
+import simplejson as json
 
 from sqlalchemy import Column, create_engine, Integer, MetaData, String, Table
 from sqlalchemy.exc import ArgumentError

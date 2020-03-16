@@ -8,7 +8,8 @@
 # All columns are treated as text - no attempt is made to sniff the type of value
 # stored in the column.
 
-import argparse, csv, json, os
+import argparse, csv, os
+import simplejson as json
 import records
 
 def get_table_name(table_id):
