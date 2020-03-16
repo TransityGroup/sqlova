@@ -27,8 +27,7 @@ class DBEngine:
     def execute_query(self, table_id, query, columns, types, *args, **kwargs):
         print("EXECUTING QUERY")
         # return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
-        return self.generateDBSQL("trips", select_index,
-                                 aggregation_index, conditions, columns, types, lower=True)
+        return self.generateDBSQL("trips", query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
 
     def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, lower=True):
         if not table_id.startswith('table'):
@@ -106,7 +105,8 @@ class DBEngine:
                 val = val.lower()
             if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
-                    val = float(parse_decimal(re.search(r'\d+', val).group(), locale='en_US'))
+                    val = float(parse_decimal(
+                        re.search(r'\d+', val).group(), locale='en_US'))
                 except NumberFormatError as e:
                     try:
                         # need to understand and debug this part.
