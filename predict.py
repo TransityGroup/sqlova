@@ -244,7 +244,6 @@ def handle_request0(request):
         record2, columns = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
 
-        print(record2)
         stream.seek(0)
 
         # Markup the questions

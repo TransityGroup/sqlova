@@ -78,8 +78,8 @@ class DBEngine:
             select, table_id, where_str)
 
         print(query)
-        # print(self.generateDBSQL(table_id, select_index,
-        #                          aggregation_index, conditions, columns, types, lower=True))
+        print(self.generateDBSQL(table_id, select_index,
+                                 aggregation_index, conditions, columns, types, lower=True))
 
         out = self.db.query(query, **where_map)
 
