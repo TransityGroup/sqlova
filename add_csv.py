@@ -91,9 +91,9 @@ def sql_to_json(table_id, sql_path, json_file_name):
     print(record)
     record['rows'] = [list(row) for row in df.applymap(str).itertuples(index=False, name=None)]
     record['name'] = get_table_name(table_id)
-    with open(json_file_name, 'a+') as fout:
-        json.dump(record, fout)
-        # fout.write('\n')
+    # with open(json_file_name, 'a+') as fout:
+    #     json.dump(record, fout)
+    #     fout.write('\n')
     return record
 
 
