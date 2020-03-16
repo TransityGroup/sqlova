@@ -106,7 +106,7 @@ def sql_to_json(table_id, sql_path, json_file_name):
     with open(json_file_name, 'a+') as fout:
         json.dump(record, fout)
         fout.write('\n')
-    return record, columns
+    return record
 
 
 

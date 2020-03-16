@@ -98,15 +98,10 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
 
     model.eval()
     model_bert.eval()
-    print("PREDICTING")
     # Sub in file path database for live database
     engine = DBEngine(os.path.join(path_db, f"{dset_name}.db"))
-    print("engine on")
-    print(data_loader)
     results = []
     for iB, t in enumerate(data_loader):
-        print("ENUMERATED")
-        print("108")
         nlu, nlu_t, sql_i, sql_q, sql_t, tb, hs_t, hds = get_fields(
             t, data_table, no_hs_t=True, no_sql_t=True)
         print("110")
@@ -118,7 +113,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
                             num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
-        print("117")
         if not EG:
             # No Execution guided decoding
             s_sc, s_sa, s_wn, s_wc, s_wo, s_wv = model(
@@ -129,7 +123,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                 pr_wvi, nlu_t, nlu_tt, tt_to_t_idx, nlu)
             pr_sql_i = generate_sql_i(
                 pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, nlu)
-            print("gen RECIVED")
         else:
             # Execution guided decoding
             prob_sca, prob_w, prob_wn_w, pr_sc, pr_sa, pr_wn, pr_sql_i = model.beam_forward(wemb_n, l_n, wemb_h, l_hpu,
@@ -143,8 +136,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             pr_wvi = None  # not used
             pr_wv_str = None
             pr_wv_str_wp = None
-        print("145")
-        print("gendf RECIVED")
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
@@ -155,15 +146,12 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["nlu"] = nlu[b]
             results1["sql"] = pr_sql_q1
             results1["sql_with_params"] = pr_sql_q1_base
-            print("RESULTS RECIVED")
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
                 pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
-            print("Query Executed")
             results1["answer"] = rr
             print(results1)
             results.append(results1)
 
-    print("resi;ts", results)
     return results
 
 
@@ -180,7 +168,6 @@ model, model_bert, tokenizer, bert_config = get_models(
 
 def run_split(split, columns, types):
     # Load data
-    print("SPlit:" + split)
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
 
@@ -191,7 +178,6 @@ def run_split(split, columns, types):
         num_workers=1,
         collate_fn=lambda x: x  # now dictionary values are not merged!
     )
-    print("dev loader done")
 
     # Run prediction
     with torch.no_grad():
@@ -207,9 +193,8 @@ def run_split(split, columns, types):
                           path_db=args.data_path,
                           st_pos=0,
                           dset_name=split, EG=False, columns=columns, types=types)
-    print("RESULTS Gathered")
-    # Save results
-    # save_for_evaluation(path_save_for_evaluation, results, split)
+
+
     message = {
         "split": split,
         "result": results
@@ -238,7 +223,7 @@ def handle_request0(request):
         if not 'q' in request.form:
             raise Exception(
                 'please include a q parameter with a question in it')
-        # csv = request.files['csv']
+
 
         csv = open(filename)
         q = request.form['q']
@@ -256,7 +241,7 @@ def handle_request0(request):
         # # make the table metadata
         # record = add_csv.csv_stream_to_json(
         #     table_id, stream, base + '.tables.jsonl')
-        record2, columns = add_csv.sql_to_json(
+        record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
 
         # stream.seek(0)
@@ -270,23 +255,16 @@ def handle_request0(request):
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
-        print("RUNNING")
-        message = run_split(base, record2['header'], record2['types'])
+        message = run_split(base, record['header'], record['types'])
         code = 200
-        print("split run")
         if not debug:
-            # os.remove(base + '.db')
             os.remove(base + '.jsonl')
             os.remove(base + '.tables.jsonl')
             os.remove(base + '_tok.jsonl')
             if 'result' in message:
                 message = message['result'][0]
-                # del message['query']
-                # del message['nlu']
-                # del message['table_id']
                 message['params'] = message['sql_with_params'][1]
                 message['sql'] = message['sql_with_params'][0]
-                # del message['sql_with_params']
 
     except Exception as e:
         print(e)
@@ -306,74 +284,8 @@ def handle_request0(request):
         elif isinstance(obj, complex):
             return [obj.real, obj.imag]
         return str(obj)
-        
+
     return json.dumps(message, default=encode_complex), code
-
-
-def handle_request1(request):
-    print("NEW CODE")
-    debug = 'debug' in request.form
-    base = ""
-    try:
-        filename = "data/test.csv"
-        # if not 'csv' in request.files:
-        #     raise Exception('please include a csv file')
-        if not 'q' in request.form:
-            raise Exception(
-                'please include a q parameter with a question in it')
-        # csv = request.files['csv']
-        csv = open(filename)
-        q = request.form['q']
-        table_id = filename
-        table_id = re.sub(r'\W+', '_', table_id)
-
-        # Read the csv and generate a database & .tables.jsonl
-        # make the database
-        stream = io.StringIO(csv.read(), newline=None)
-        base = table_id + "_" + str(uuid.uuid4())
-        add_csv.csv_stream_to_sqlite(table_id, stream, base + '.db')
-        stream.seek(0)
-
-        # make the table metadata
-        record = add_csv.csv_stream_to_json(
-            table_id, stream, base + '.tables.jsonl')
-        stream.seek(0)
-
-        # Markup the questions
-        add_question.question_to_json(table_id, q, base + '.jsonl')
-        annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
-                                                     record)
-
-        # Create the standford nlp annotated tokenizer
-        with open(base + '_tok.jsonl', 'a+') as fout:
-            fout.write(json.dumps(annotation) + '\n')
-
-        message = run_split(base, [], [])
-        code = 200
-
-        if not debug:
-            os.remove(base + '.db')
-            os.remove(base + '.jsonl')
-            os.remove(base + '.tables.jsonl')
-            os.remove(base + '_tok.jsonl')
-            os.remove('results_' + base + '.jsonl')
-            if 'result' in message:
-                message = message['result'][0]
-                del message['query']
-                del message['nlu']
-                del message['table_id']
-                message['params'] = message['sql_with_params'][1]
-                message['sql'] = message['sql_with_params'][0]
-                del message['sql_with_params']
-
-    except Exception as e:
-        message = {"error": str(e)}
-        code = 500
-
-    if debug:
-        message['base'] = base
-
-    return jsonify(message), code
 
 
 status = "Loading corenlp models, please wait"
