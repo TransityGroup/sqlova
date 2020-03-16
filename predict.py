@@ -227,8 +227,7 @@ def handle_request0(request):
 
         # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')
-        annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),
-                                                     record)
+        annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q),record)
 
         # Create the standford nlp annotated tokenizer
         with open(base + '_tok.jsonl', 'a+') as fout:
