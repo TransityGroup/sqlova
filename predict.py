@@ -257,7 +257,7 @@ def handle_request0(request):
             fout.write(json.dumps(annotation) + '\n')
 
         print("RUNNING")
-        message = run_split(base, record2['columns'],record2['types'])
+        message = run_split(base, record2['header'],record2['types'])
         code = 200
 
         if not debug:
