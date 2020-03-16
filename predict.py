@@ -157,6 +157,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             print("RESULTS RECIVED")
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
                 pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
+            print("Query Executed")
             results1["answer"] = rr
             results.append(results1)
 
