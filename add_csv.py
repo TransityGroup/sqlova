@@ -87,9 +87,7 @@ def sql_to_json(table_id, sql_path, json_file_name):
         columns.append(column['column_name'])
         type = str(column['data_type'])
         # TODO: add more datatypes
-        print(type)
-        if((type is 'integer') or (type is 'numeric')):
-            print('real')
+        if((type == 'integer') or (type == 'numeric')):
             types.append('real')
         else:
             types.append('text')
