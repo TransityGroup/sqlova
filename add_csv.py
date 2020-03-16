@@ -68,6 +68,7 @@ def csv_stream_to_json(table_id, f, json_file_name):
     record['types'] = ['text'] * len(cf.fieldnames)
     record['id'] = table_id
     record['caption'] = None
+    print(record)
     record['rows'] = [list(row.values()) for row in cf]
     record['name'] = get_table_name(table_id)
     with open(json_file_name, 'a+') as fout:
@@ -87,11 +88,12 @@ def sql_to_json(table_id, sql_path, json_file_name):
     record['types'] = ['text'] * len(columns)
     record['id'] = table_id
     record['caption'] = None
+    print(record)
     record['rows'] = [list(row) for row in df.applymap(str).itertuples(index=False, name=None)]
     record['name'] = get_table_name(table_id)
     with open(json_file_name, 'a+') as fout:
         json.dump(record, fout)
-        fout.write('\n')
+        # fout.write('\n')
     return record
 
 
