@@ -77,15 +77,26 @@ def csv_stream_to_json(table_id, f, json_file_name):
     return record
 
 def sql_to_json(table_id, sql_path, json_file_name):
-
+    table_name = "trips"
     db = records.Database("postgres://postgres:postgres@localhost:5432/honda_dev")
-    df = db.query("Select * from trips limit 1000").export('df')
-    columns = list(df.columns)
+    df = db.query("Select * from {} limit 1000".format(table_name)).export('df')
+    schema = db.query("select column_name, data_type  from information_schema.columns where table_name = '{}'".format(table_name))
+    columns = []
+    types = []
+    for column in schema.as_dict():
+        columns.append(column['column_name'])
+        type = column['data_type']
+        # TODO: add more datatypes
+        if(type is 'integer' or type is 'numeric')
+            types.append('real')
+        else:
+            types.append('text')
+    
     record = {}
     # Column Names
-    record['header'] = [(name or 'col{}'.format(i)) for i, name in enumerate(columns)]
+    record['header'] = columns
     record['page_title'] = None
-    record['types'] = ['text'] * len(columns)
+    record['types'] = types
     record['id'] = table_id
     record['caption'] = None
     print(record)
