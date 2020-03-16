@@ -109,7 +109,7 @@ class DBEngine:
                 try:
                     print('!!!!!!value of val is: ', val, 'type is: ', type(val))
                     # val = float(parse_decimal(val)) # somehow it generates error.
-                    val = float(parse_decimal(val, locale='en_US'))
+                    val = float(parse_decimal(re.search(r'\d+', val).group(), locale='en_US'))
                     print('!!!!!!After: val', val)
 
                 except NumberFormatError as e:
@@ -121,8 +121,8 @@ class DBEngine:
                         pass
             print("if tree done")
             where_clause.append('{column} {condition} {value}'.format(
-                columns[col_index-1], cond_ops[op], col_index))
-            where_map['col{}'.format(col_index)] = val
+                columns[col_index-1], cond_ops[op], val))
+            # where_map['col{}'.format(col_index)] = val
             print("appended")
         print("generatign where")
         where_str = ''
