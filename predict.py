@@ -80,7 +80,7 @@ if not args.split:
             return jsonify({"error": status}), 503
 
     def start():
-        app.run(host='0.0.0.0', port=5050, debug=True)
+        app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
     thread = threading.Thread(target=start, args=())
     thread.daemon = True
     thread.start()
