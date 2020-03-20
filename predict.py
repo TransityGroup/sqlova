@@ -96,11 +96,10 @@ if not args.split:
 def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
             num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
-            path_db=None, dset_name='test', columns=[], types=[], db_path=""):
+            path_db=None, dset_name='test', columns=[], types=[], db_path="", table="trips"):
 
     model.eval()
     model_bert.eval()
-
 
     engine = DBEngine(db_path)
 
@@ -149,7 +148,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["sql"] = pr_sql_q1
             results1["sql_with_params"] = pr_sql_q1_base
             rr = engine.execute_query(tb[b]["id"], Query.from_dict(
-                pr_sql_i1, ordered=True), columns=columns, types=types, lower=False)
+                pr_sql_i1, ordered=True), columns=columns, types=types, table=table, lower=False)
             results1["answer"] = rr
             print(results1)
             results.append(results1)
@@ -168,7 +167,7 @@ model, model_bert, tokenizer, bert_config = get_models(
     args, BERT_PT_PATH, trained=True, path_model_bert=path_model_bert, path_model=path_model)
 
 
-def run_split(split, columns, types,db_path):
+def run_split(split, columns, types, db_path, table):
     # Load data
     dev_data, dev_table = load_wikisql_data(
         args.data_path, mode=split, toy_model=args.toy_model, toy_size=args.toy_size, no_hs_tok=True)
@@ -194,7 +193,7 @@ def run_split(split, columns, types,db_path):
                           detail=False,
                           path_db=args.data_path,
                           st_pos=0,
-                          dset_name=split, EG=False, columns=columns, types=types, db_path=db_path)
+                          dset_name=split, EG=False, columns=columns, types=types, db_path=db_path, table=table)
 
     message = {
         "split": split,
@@ -209,7 +208,7 @@ def serialize(o):
 
 
 if args.split:
-    message = run_split(args.split, [], [])
+    message = run_split(args.split, [], [],"","")
     json.dumps(message, indent=2, default=serialize)
     exit(0)
 
@@ -228,8 +227,11 @@ def handle_request0(request):
 
         # csv = open(filename)
         q = request.form['q']
-        table_id = filename
+        table_id = "trips_metadata"
         table_id = re.sub(r'\W+', '_', table_id)
+
+
+        table_name = "tripshahadab"
 
         record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
@@ -244,7 +246,7 @@ def handle_request0(request):
             fout.write(json.dumps(annotation) + '\n')
 
         # Genereate the query, and run the result on SQL.
-        message = run_split(base, record['header'], record['types'], db_path)
+        message = run_split(base, record['header'], record['types'], db_path, table_name)
         code = 200
         if not debug:
             os.remove(base + '.jsonl')

@@ -19,16 +19,14 @@ cond_ops = ['=', '>', '<', 'OP']
 class DBEngine:
 
     def __init__(self, pdb="postgres://postgres:postgres@localhost:5432/honda_dev"):
-        # fdb = 'data/test.db'
-        # self.db = records.Database('sqlite:///{}'.format(fdb))
         self.pdb = records.Database(pdb)
 
-    def execute_query(self, table_id, query, columns, types, *args, **kwargs):
+    def execute_query(self, table_id, query, columns, types,table, *args, **kwargs):
         print("EXECUTING QUERY")
         # return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
-        return self.generateDBSQL("trips", query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
+        return self.generateDBSQL(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, table, *args, **kwargs)
 
-    def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, lower=True):
+    def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, table lower=True):
         if not table_id.startswith('table'):
             table_id = 'table_{}'.format(table_id.replace('-', '_'))
 
@@ -56,10 +54,7 @@ class DBEngine:
                 val = val.lower()
             if schema['col{}'.format(col_index)] == 'real' and not isinstance(val, (int, float)):
                 try:
-                    # print('!!!!!!value of val is: ', val, 'type is: ', type(val))
-                    # val = float(parse_decimal(val)) # somehow it generates error.
                     val = float(parse_decimal(val, locale='en_US'))
-                    # print('!!!!!!After: val', val)
 
                 except NumberFormatError as e:
                     try:
@@ -67,7 +62,6 @@ class DBEngine:
                         val = float(num_re.findall(val)[0])
                         print(e)
                     except:
-                        # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
             where_clause.append('lower(col{}) {} lower(:col{})'.format(
                 col_index, cond_ops[op], col_index))
@@ -86,7 +80,7 @@ class DBEngine:
 
         return [o.result for o in out]
 
-    def generateDBSQL(self, table_id, select_index, aggregation_index, conditions, columns, types, lower=True):
+    def generateDBSQL(self, table_id, select_index, aggregation_index, conditions, columns, types, table lower=True):
         # schema_str = schema_re.findall(table_info)[0]
         # schema = {}
         # for tup in schema_str.split(', '):
@@ -96,6 +90,7 @@ class DBEngine:
         print("Generating")
         print("SQLENGINIE", columns)
         print(table_id)
+        print(table)
         print(select_index)
         print(aggregation_index)
         print(conditions)
@@ -128,7 +123,7 @@ class DBEngine:
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
         query = 'SELECT {} AS result FROM {} {}'.format(
-            select, table_id, where_str)
+            select, "trips", where_str)
         print(query)
 
         out = self.pdb.query(query)
