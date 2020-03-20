@@ -26,7 +26,7 @@ class DBEngine:
         # return self.execute(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, *args, **kwargs)
         return self.generateDBSQL(table_id, query.sel_index, query.agg_index, query.conditions, columns, types, table, *args, **kwargs)
 
-    def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, table lower=True):
+    def execute(self, table_id, select_index, aggregation_index, conditions, columns, types, table, lower=True):
         if not table_id.startswith('table'):
             table_id = 'table_{}'.format(table_id.replace('-', '_'))
 
@@ -80,7 +80,7 @@ class DBEngine:
 
         return [o.result for o in out]
 
-    def generateDBSQL(self, table_id, select_index, aggregation_index, conditions, columns, types, table lower=True):
+    def generateDBSQL(self, table_id, select_index, aggregation_index, conditions, columns, types, table, lower=True):
         # schema_str = schema_re.findall(table_info)[0]
         # schema = {}
         # for tup in schema_str.split(', '):
