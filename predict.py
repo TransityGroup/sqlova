@@ -231,7 +231,7 @@ def handle_request0(request):
         table_id = re.sub(r'\W+', '_', table_id)
 
 
-        table_name = "tripshahadab"
+        table_name = "trips"
 
         record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')

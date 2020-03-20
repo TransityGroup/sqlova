@@ -123,7 +123,7 @@ class DBEngine:
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
         query = 'SELECT {} AS result FROM {} {}'.format(
-            select, "trips", where_str)
+            select, table, where_str)
         print(query)
 
         out = self.pdb.query(query)
