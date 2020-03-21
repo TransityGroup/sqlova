@@ -37,6 +37,10 @@ import io
 from flask_cors import CORS
 from flask import jsonify
 from flask import Flask, request
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 import add_question
 import add_csv
 import annotate_ws
@@ -48,7 +52,8 @@ import os
 import numpy as np
 import torch
 from sqlnet.dbengine import DBEngine
-from sqlova.utils.utils_wikisql import get_fields, get_g, get_g_wvi_corenlp, get_wemb_bert, pred_sw_se, convert_pr_wvi_to_string, generate_sql_i
+from sqlova.utils.utils_wikisql import get_fields, get_g, get_g_wvi_corenlp, get_wemb_bert, pred_sw_se, \
+    convert_pr_wvi_to_string, generate_sql_i
 from sqlova.utils.utils_wikisql import sort_and_generate_pr_w, generate_sql_q, generate_sql_q_base, load_wikisql_data
 
 # Set up hyper parameters and paths
@@ -72,21 +77,22 @@ handle_request = None
 thread = None
 status = "Loading sqlova model, please wait"
 
-if not args.split:
-    app = Flask(__name__)
-    CORS(app)
-    @app.route('/', methods=['POST'])
-    def run():
-        if handle_request:
-            return handle_request(request)
-        else:
-            return jsonify({"error": status}), 503
+app = FastAPI()
 
-    def start():
-        app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
-    thread = threading.Thread(target=start, args=())
-    thread.daemon = True
-    thread.start()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+
+def run():
+    if handle_request:
+        return handle_request(request)
+    else:
+        return jsonify({"error": status}), 503
 
 
 # This is a stripped down version of the test() method in train.py - identical, except:
@@ -97,7 +103,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
             num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
             path_db=None, dset_name='test', columns=[], types=[], db_path="", table="trips"):
-
     model.eval()
     model_bert.eval()
 
@@ -110,7 +115,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
         g_wvi_corenlp = get_g_wvi_corenlp(t)
         wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-            nlu_tt, t_to_tt_idx, tt_to_t_idx \
+        nlu_tt, t_to_tt_idx, tt_to_t_idx \
             = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
                             num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
@@ -208,20 +213,22 @@ def serialize(o):
 
 
 if args.split:
-    message = run_split(args.split, [], [],"","")
+    message = run_split(args.split, [], [], "", "")
     json.dumps(message, indent=2, default=serialize)
     exit(0)
 
 
-def handle_request0(request):
+@app.post('/')
+def handle_request0(table_name: str = "trips"):
     debug = 'debug' in request.form
     base = ""
     try:
         filename = "data/test.csv"
-        db_path = "postgres://postgres:postgres@localhost:5432/honda_dev"
+        # Staging environment value: "postgres://postgres:postgres@localhost:5432/honda_dev"
+        db_path = os.getenv("DB_URL")
         # if not 'csv' in request.files:
         #     raise Exception('please include a csv file')
-        if not 'q' in request.form:
+        if 'q' not in request.form:
             raise Exception(
                 'please include a q parameter with a question in it')
 
@@ -230,8 +237,7 @@ def handle_request0(request):
         table_id = "trips_metadata"
         table_id = re.sub(r'\W+', '_', table_id)
 
-
-        table_name = "trips"
+        # table_name = "trips"
 
         record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
@@ -281,6 +287,3 @@ def handle_request0(request):
 
 status = "Loading corenlp models, please wait"
 annotate_ws.annotate('start up please')
-
-handle_request = handle_request0
-thread.join()
