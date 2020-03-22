@@ -7,7 +7,6 @@ Pillow==6.2.2
 protobuf==3.7.1
 records==0.5.2
 requests==2.22.0
-# -e git+https://github.com/stanfordnlp/stanza@920c55d8eaa1e7105971059c66eb448a74c100d6#egg=stanza
 stanza
 tqdm==4.19.9
 torch==0.4.1
