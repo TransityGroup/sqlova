@@ -96,6 +96,7 @@ class DBEngine:
         print(conditions)
 
         select = columns[select_index]
+
         agg = agg_ops[aggregation_index]
         if agg:
             select = '{}({})'.format(agg, select)
@@ -122,6 +123,11 @@ class DBEngine:
         where_str = ''
         if where_clause:
             where_str = 'WHERE ' + ' AND '.join(where_clause)
+
+        print(select)
+        if("id" in select.lower()):
+            print("REPLACE WITH ALL", select)
+            print(columns)
         query = 'SELECT {} AS result FROM {} {}'.format(
             select, table, where_str)
         print(query)
