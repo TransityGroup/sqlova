@@ -30,31 +30,33 @@
 #
 # Results will be in a file called results_<split>.jsonl in the result_path.
 
-import re
-import simplejson as json
-import uuid
-import io
-from flask_cors import CORS
-from flask import jsonify
-from flask import Flask, request
-
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-import add_question
-import add_csv
-import annotate_ws
-from wikisql.lib.query import Query
-from train import construct_hyper_param, get_models
-import threading
 import argparse
+import io
 import os
+import re
+import threading
+import uuid
+
 import numpy as np
+import simplejson as json
 import torch
+from fastapi import FastAPI, Form
+from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
+import add_csv
+import add_question
+import annotate_ws
 from sqlnet.dbengine import DBEngine
-from sqlova.utils.utils_wikisql import get_fields, get_g, get_g_wvi_corenlp, get_wemb_bert, pred_sw_se, \
-    convert_pr_wvi_to_string, generate_sql_i
-from sqlova.utils.utils_wikisql import sort_and_generate_pr_w, generate_sql_q, generate_sql_q_base, load_wikisql_data
+from sqlova.utils.utils_wikisql import (convert_pr_wvi_to_string,
+                                        generate_sql_i, generate_sql_q,
+                                        generate_sql_q_base, get_fields, get_g,
+                                        get_g_wvi_corenlp, get_wemb_bert,
+                                        load_wikisql_data, pred_sw_se,
+                                        sort_and_generate_pr_w)
+from train import construct_hyper_param, get_models
+from wikisql.lib.query import Query
 
 # Set up hyper parameters and paths
 parser = argparse.ArgumentParser()
@@ -115,7 +117,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         g_sc, g_sa, g_wn, g_wc, g_wo, g_wv = get_g(sql_i)
         g_wvi_corenlp = get_g_wvi_corenlp(t)
         wemb_n, wemb_h, l_n, l_hpu, l_hs, \
-        nlu_tt, t_to_tt_idx, tt_to_t_idx \
+            nlu_tt, t_to_tt_idx, tt_to_t_idx \
             = get_wemb_bert(bert_config, model_bert, tokenizer, nlu_t, hds, max_seq_length,
                             num_out_layers_n=num_target_layers, num_out_layers_h=num_target_layers)
 
@@ -219,7 +221,7 @@ if args.split:
 
 
 @app.post('/')
-def handle_request0(table_name: str = "trips"):
+def handle_request0(table_name: str = "trips", q: str = Form(...)):
     debug = 'debug' in request.form
     base = ""
     try:
@@ -228,12 +230,12 @@ def handle_request0(table_name: str = "trips"):
         db_path = os.getenv("DB_URL")
         # if not 'csv' in request.files:
         #     raise Exception('please include a csv file')
-        if 'q' not in request.form:
-            raise Exception(
-                'please include a q parameter with a question in it')
+        # if 'q' not in request.form:
+        #     raise Exception(
+        #         'please include a q parameter with a question in it')
 
         # csv = open(filename)
-        q = request.form['q']
+        # q = request.form['q']
         table_id = "trips_metadata"
         table_id = re.sub(r'\W+', '_', table_id)
 
@@ -252,7 +254,8 @@ def handle_request0(table_name: str = "trips"):
             fout.write(json.dumps(annotation) + '\n')
 
         # Genereate the query, and run the result on SQL.
-        message = run_split(base, record['header'], record['types'], db_path, table_name)
+        message = run_split(
+            base, record['header'], record['types'], db_path, table_name)
         code = 200
         if not debug:
             os.remove(base + '.jsonl')
