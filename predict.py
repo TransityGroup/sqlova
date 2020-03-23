@@ -282,7 +282,7 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
             return [obj.real, obj.imag]
         return str(obj)
 
-    return json.loads(json.dumps(message, default=encode_complex))
+    return message
 
 
 if args.split:
