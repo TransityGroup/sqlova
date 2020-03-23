@@ -141,7 +141,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             pr_wv_str_wp = None
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
-
+        print("FIST LOOP", results)
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
             results1 = {"query": pr_sql_i1,
                         "table_id": tb[b]["id"],
@@ -156,6 +156,7 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                                       lower=False)
             results1["answer"] = rr
             print(results1)
+            print("IN LOOP", results)
             results.append(results1)
 
     return results
