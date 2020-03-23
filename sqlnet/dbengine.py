@@ -104,7 +104,7 @@ class DBEngine:
         for col_index, op, val in conditions:
             print(types[col_index])
             if isinstance(val, str):
-                val = "\"{}\"".format(val.lower())
+                val = "'{}'".format(val.lower())
             if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
                     val = float(parse_decimal(
