@@ -227,64 +227,42 @@ def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
         return [obj.real, obj.imag]
     return str(obj)
 
+
 @app.post('/')
-def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
+async def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
     base = ""
     try:
         print("___________________________________________________")
         print("NEW RUN")
-        # filename = "data/test.csv"
-        # Staging environment value: "postgres://postgres:postgres@localhost:5432/honda_dev"
         db_path = os.getenv("DB_URL")
-        # if not 'csv' in request.files:
-        #     raise Exception('please include a csv file')
-        # if 'q' not in request.form:
-        #     raise Exception(
-        #         'please include a q parameter with a question in it')
-
-        # csv = open(filename)
-        # q = request.form['q']
         table_id = "trips_metadata"
         table_id = re.sub(r'\W+', '_', table_id)
-
-        # table_name = "trips"
 
         record = add_csv.sql_to_json(
             table_id, 'tabled id blablbla', base + '.tables.jsonl')
 
         # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')
-        annotation = annotate_ws.annotate_example_ws(
-            add_question.encode_question(table_id, q), record)
+        annotation = annotate_ws.annotate_example_ws(add_question.encode_question(table_id, q), record)
 
         # Create the standford nlp annotated tokenizer
         with open(base + '_tok.jsonl', 'a+') as fout:
             fout.write(json.dumps(annotation) + '\n')
 
         # Genereate the query, and run the result on SQL.
-        message = run_split(
-            base, record['header'], record['types'], db_path, table_name)
+        message = run_split(base, record['header'], record['types'], db_path, table_name)
         code = 200
         print("SPLIT RUN")
         os.remove(base + '.jsonl')
         os.remove(base + '.tables.jsonl')
         os.remove(base + '_tok.jsonl')
         print("DELETED")
-        # if 'result' in message:
-            # message = message['results'][0]
-            # message['params'] = message['sql_with_params'][1]
-            # message['sql'] = message['sql_with_params'][0]
-        
         return json.loads(json.dumps(message, default=encode_complex))
+
     except Exception as e:
         print(e)
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": str(e)}
-
-    if debug:
-        message['base'] = base
-
-    
 
 
 if args.split:
