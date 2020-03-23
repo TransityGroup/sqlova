@@ -76,7 +76,7 @@ from wikisql.lib.query import Query
 
 args = construct_hyper_param()
 
-handle_request = None
+# handle_request = None
 
 thread = None
 status = "Loading sqlova model, please wait"
@@ -213,7 +213,7 @@ def serialize(o):
 
 
 @app.post('/')
-def handle_request0(response: Response, table_name: str = "trips", q: str = Form(...), debug: str = Form(...)):
+def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: str = Form(...)):
     base = ""
     try:
         filename = "data/test.csv"
