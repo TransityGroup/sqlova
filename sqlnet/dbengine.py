@@ -103,8 +103,10 @@ class DBEngine:
         where_clause = []
         for col_index, op, val in conditions:
             print(types[col_index])
+            col = columns[col_index]
             if isinstance(val, str):
                 val = "'{}'".format(val.lower())
+                col = "LOWER({})".format(col)
             if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
                     val = float(parse_decimal(
@@ -117,8 +119,9 @@ class DBEngine:
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
+
             where_clause.append('{} {} {}'.format(
-                columns[col_index], cond_ops[op], val))
+                col, cond_ops[op], val))
 
         where_str = ''
         if where_clause:
