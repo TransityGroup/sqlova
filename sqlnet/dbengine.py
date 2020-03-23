@@ -134,13 +134,19 @@ class DBEngine:
             print("REPLACE WITH ALL", select)
             print(columns)
             select = "*"
-        query = 'SELECT {} AS result FROM {} {}'.format(
-            select, table, where_str)
-        print(query)
+            query = 'SELECT {} FROM {} {}'.format(
+                select, table, where_str)
+            print(query)
 
-        out = self.pdb.query(query)
-        print("QUERY SUCCESFUL")
-        return [o.result for o in out]
+            out = self.pdb.query(query)
+            return out.export('json')
+        else:
+            query = 'SELECT {} as result FROM {} {}'.format(
+                select, table, where_str)
+            out = self.pdb.query(query)
+            return [o.result for o in out]
+
+        
 
     def execute_return_query(self, table_id, select_index, aggregation_index, conditions, lower=True):
         print("EXECUTING RETURN QUERY")
