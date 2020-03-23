@@ -98,7 +98,7 @@ app.add_middleware(
 #
 def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             max_seq_length,
-            num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=True, beam_size=4,
+            num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=False, beam_size=4,
             path_db=None, dset_name='test', columns=[], types=[], db_path="", table="trips"):
     model.eval()
     model_bert.eval()
@@ -139,9 +139,12 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             pr_wvi = None  # not used
             pr_wv_str = None
             pr_wv_str_wp = None
+
+
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
         print("FIST LOOP", results)
+        results1 = {}
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
             results1 = {"query": pr_sql_i1,
                         "table_id": tb[b]["id"],
@@ -157,9 +160,9 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
             results1["answer"] = rr
             print(results1)
             print("IN LOOP", results)
-            results.append(results1)
+            # results.append(results1)
 
-    return results
+    return [results1]
 
 
 BERT_PT_PATH = args.bert_path
@@ -217,7 +220,7 @@ def serialize(o):
 def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: str = Form(...)):
     base = ""
     try:
-        filename = "data/test.csv"
+        # filename = "data/test.csv"
         # Staging environment value: "postgres://postgres:postgres@localhost:5432/honda_dev"
         db_path = os.getenv("DB_URL")
         # if not 'csv' in request.files:
