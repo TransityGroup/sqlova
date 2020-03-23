@@ -16,18 +16,6 @@ num_re = re.compile(r'[-+]?\d*\.\d+|\d+')
 agg_ops = ['', 'MAX', 'MIN', 'COUNT', 'SUM', 'AVG']
 cond_ops = ['=', '>', '<', 'OP']
 
-def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
-    if isinstance(obj, np.integer):
-        return int(obj)
-    elif isinstance(obj, np.float):
-        return float(obj)
-    elif isinstance(obj, np.ndarray):
-        return obj.tolist()
-    elif isinstance(obj, complex):
-            eturn [obj.real, obj.imag]
-    return str(obj)
-
-
 class DBEngine:
 
     def __init__(self, pdb="postgres://postgres:postgres@localhost:5432/honda_dev"):
