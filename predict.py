@@ -143,7 +143,6 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
 
         pr_sql_q = generate_sql_q(pr_sql_i, tb)
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
-        print("FIST LOOP", results)
         results1 = {}
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
             print("B",b)

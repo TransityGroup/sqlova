@@ -139,7 +139,7 @@ class DBEngine:
             print(query)
 
             out = self.pdb.query(query)
-            return out.export('json')
+            return json.loads(out.export('json'))
         else:
             query = 'SELECT {} as result FROM {} {}'.format(
                 select, table, where_str)
