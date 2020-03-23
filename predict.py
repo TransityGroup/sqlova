@@ -276,7 +276,7 @@ def handle_request0(response: Response, table_name: str = "trips", q: str = Form
             return [obj.real, obj.imag]
         return str(obj)
 
-    return json.dumps(message, default=encode_complex)
+    return json.loads(json.dumps(message, default=encode_complex))
 
 
 if args.split:
