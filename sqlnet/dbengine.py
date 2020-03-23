@@ -89,6 +89,7 @@ class DBEngine:
 
         print("Generating")
         print("SQLENGINIE", columns)
+        print(types)
         print(table_id)
         print(table)
         print(select_index)
