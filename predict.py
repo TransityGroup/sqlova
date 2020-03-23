@@ -221,7 +221,7 @@ def serialize(o):
 def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
     if isinstance(obj, np.integer):
         return int(obj)
-     elif isinstance(obj, np.floating):
+    elif isinstance(obj, np.float):
         return float(obj)
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
