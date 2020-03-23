@@ -272,8 +272,8 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
         print("DELETED")
         if 'result' in message:
             # message = message['results'][0]
-            message['params'] = message['sql_with_params'][1]
-            message['sql'] = message['sql_with_params'][0]
+            # message['params'] = message['sql_with_params'][1]
+            # message['sql'] = message['sql_with_params'][0]
         
         return json.loads(json.dumps(message, default=encode_complex))
     except Exception as e:
