@@ -271,11 +271,11 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
             os.remove(base + '.tables.jsonl')
             os.remove(base + '_tok.jsonl')
             if 'result' in message:
-                message = json.loads(json.dumps(message['result'][0], default=encode_complex))
+                message = message['results'][0]
                 message['params'] = message['sql_with_params'][1]
                 message['sql'] = message['sql_with_params'][0]
         
-        return message
+        return json.loads(json.dumps(message, default=encode_complex))
     except Exception as e:
         print(e)
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
