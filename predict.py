@@ -231,6 +231,8 @@ def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
 def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
     base = ""
     try:
+        print("___________________________________________________")
+        print("NEW RUN")
         # filename = "data/test.csv"
         # Staging environment value: "postgres://postgres:postgres@localhost:5432/honda_dev"
         db_path = os.getenv("DB_URL")
