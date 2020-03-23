@@ -229,7 +229,7 @@ def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
 
 @app.post('/')
 def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
-    base = ""
+    base = "data"
     try:
         print("___________________________________________________")
         print("NEW RUN")
@@ -266,14 +266,13 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
             base, record['header'], record['types'], db_path, table_name)
         code = 200
         
-        if not debug:
-            os.remove(base + '.jsonl')
-            os.remove(base + '.tables.jsonl')
-            os.remove(base + '_tok.jsonl')
-            if 'result' in message:
-                message = message['results'][0]
-                message['params'] = message['sql_with_params'][1]
-                message['sql'] = message['sql_with_params'][0]
+        os.remove(base + '.jsonl')
+        os.remove(base + '.tables.jsonl')
+        os.remove(base + '_tok.jsonl')
+        if 'result' in message:
+            message = message['results'][0]
+            message['params'] = message['sql_with_params'][1]
+            message['sql'] = message['sql_with_params'][0]
         
         return json.loads(json.dumps(message, default=encode_complex))
     except Exception as e:
