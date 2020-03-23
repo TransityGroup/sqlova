@@ -36,14 +36,14 @@ import os
 import re
 import threading
 import uuid
+from typing import Union, Iterable, List
 
 import numpy as np
 import simplejson as json
 import torch
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, status, Response
 from fastapi.middleware.cors import CORSMiddleware
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+
 
 import add_csv
 import add_question
@@ -59,20 +59,22 @@ from train import construct_hyper_param, get_models
 from wikisql.lib.query import Query
 
 # Set up hyper parameters and paths
-parser = argparse.ArgumentParser()
-parser.add_argument("--model_file", required=True,
-                    help='model file to use (e.g. model_best.pt)')
-parser.add_argument("--bert_model_file", required=True,
-                    help='bert model file to use (e.g. model_bert_best.pt)')
-parser.add_argument("--bert_path", required=True,
-                    help='path to bert files (bert_config*.json etc)')
-parser.add_argument("--data_path", required=True,
-                    help='path to *.jsonl and *.db files')
-parser.add_argument("--split", required=False,
-                    help='prefix of jsonl and db files (e.g. dev)')
-parser.add_argument("--result_path", required=True,
-                    help='directory in which to place results')
-args = construct_hyper_param(parser)
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--model_file", required=True,
+#                     help='model file to use (e.g. model_best.pt)')
+# parser.add_argument("--bert_model_file", required=True,
+#                     help='bert model file to use (e.g. model_bert_best.pt)')
+# parser.add_argument("--bert_path", required=True,
+#                     help='path to bert files (bert_config*.json etc)')
+# parser.add_argument("--data_path", required=True,
+#                     help='path to *.jsonl and *.db files')
+# parser.add_argument("--split", required=False,
+#                     help='prefix of jsonl and db files (e.g. dev)')
+# parser.add_argument("--result_path", required=True,
+#                     help='directory in which to place results')
+# args1 = construct_hyper_param(parser)
+
+args = construct_hyper_param()
 
 handle_request = None
 
@@ -88,13 +90,6 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
-
-
-def run():
-    if handle_request:
-        return handle_request(request)
-    else:
-        return jsonify({"error": status}), 503
 
 
 # This is a stripped down version of the test() method in train.py - identical, except:
@@ -148,14 +143,17 @@ def predict(data_loader, data_table, model, model_bert, bert_config, tokenizer,
         pr_sql_q_base = generate_sql_q_base(pr_sql_i, tb)
 
         for b, (pr_sql_i1, pr_sql_q1, pr_sql_q1_base) in enumerate(zip(pr_sql_i, pr_sql_q, pr_sql_q_base)):
-            results1 = {}
-            results1["query"] = pr_sql_i1
-            results1["table_id"] = tb[b]["id"]
-            results1["nlu"] = nlu[b]
-            results1["sql"] = pr_sql_q1
-            results1["sql_with_params"] = pr_sql_q1_base
-            rr = engine.execute_query(tb[b]["id"], Query.from_dict(
-                pr_sql_i1, ordered=True), columns=columns, types=types, table=table, lower=False)
+            results1 = {"query": pr_sql_i1,
+                        "table_id": tb[b]["id"],
+                        "nlu": nlu[b],
+                        "sql": pr_sql_q1,
+                        "sql_with_params": pr_sql_q1_base}
+            rr = engine.execute_query(tb[b]["id"],
+                                      Query.from_dict(pr_sql_i1, ordered=True),
+                                      columns=columns,
+                                      types=types,
+                                      table=table,
+                                      lower=False)
             results1["answer"] = rr
             print(results1)
             results.append(results1)
@@ -214,15 +212,8 @@ def serialize(o):
         return int(o)
 
 
-if args.split:
-    message = run_split(args.split, [], [], "", "")
-    json.dumps(message, indent=2, default=serialize)
-    exit(0)
-
-
 @app.post('/')
-def handle_request0(table_name: str = "trips", q: str = Form(...)):
-    debug = 'debug' in request.form
+def handle_request0(response: Response, table_name: str = "trips", q: str = Form(...), debug: str = Form(...)):
     base = ""
     try:
         filename = "data/test.csv"
@@ -268,13 +259,13 @@ def handle_request0(table_name: str = "trips", q: str = Form(...)):
 
     except Exception as e:
         print(e)
-        message = {"error": str(e)}
-        code = 500
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": str(e)}
 
     if debug:
         message['base'] = base
 
-    def encode_complex(obj):
+    def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
@@ -285,7 +276,13 @@ def handle_request0(table_name: str = "trips", q: str = Form(...)):
             return [obj.real, obj.imag]
         return str(obj)
 
-    return json.dumps(message, default=encode_complex), code
+    return json.dumps(message, default=encode_complex)
+
+
+if args.split:
+    message = run_split(args.split, [], [], "", "")
+    json.dumps(message, indent=2, default=serialize)
+    exit(0)
 
 
 status = "Loading corenlp models, please wait"

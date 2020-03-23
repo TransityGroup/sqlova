@@ -19,60 +19,87 @@ from bert.modeling import BertConfig, BertModel
 from sqlova.utils.utils_wikisql import *
 from sqlova.model.nl2sql.wikisql_models import *
 from sqlnet.dbengine import DBEngine
+from types import SimpleNamespace
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def construct_hyper_param(parser):
-    parser.add_argument('--tepoch', default=200, type=int)
-    parser.add_argument("--bS", default=32, type=int,
-                        help="Batch size")
-    parser.add_argument("--accumulate_gradients", default=1, type=int,
-                        help="The number of accumulation of backpropagation to effectivly increase the batch size.")
-    parser.add_argument('--fine_tune',
-                        default=False,
-                        action='store_true',
-                        help="If present, BERT is trained.")
-
-    parser.add_argument("--model_type", default='Seq2SQL_v1', type=str,
-                        help="Type of model.")
-
-    # 1.2 BERT Parameters
-    parser.add_argument("--vocab_file",
-                        default='vocab.txt', type=str,
-                        help="The vocabulary file that the BERT model was trained on.")
-    parser.add_argument("--max_seq_length",
-                        default=222, type=int, # Set based on maximum length of input tokens.
-                        help="The maximum total input sequence length after WordPiece tokenization. Sequences "
-                             "longer than this will be truncated, and sequences shorter than this will be padded.")
-    parser.add_argument("--num_target_layers",
-                        default=2, type=int,
-                        help="The Number of final layers of BERT to be used in downstream task.")
-    parser.add_argument('--lr_bert', default=1e-5, type=float, help='BERT model learning rate.')
-    parser.add_argument('--seed',
-                        type=int,
-                        default=42,
-                        help="random seed for initialization")
-    parser.add_argument('--no_pretraining', action='store_true', help='Use BERT pretrained model')
-    parser.add_argument("--bert_type_abb", default='uS', type=str,
-                        help="Type of BERT model to load. e.g.) uS, uL, cS, cL, and mcS")
-
-    # 1.3 Seq-to-SQL module parameters
-    parser.add_argument('--lS', default=2, type=int, help="The number of LSTM layers.")
-    parser.add_argument('--dr', default=0.3, type=float, help="Dropout rate.")
-    parser.add_argument('--lr', default=1e-3, type=float, help="Learning rate.")
-    parser.add_argument("--hS", default=100, type=int, help="The dimension of hidden vector in the seq-to-SQL module.")
-
-    # 1.4 Execution-guided decoding beam-size. It is used only in test.py
-    parser.add_argument('--EG',
-                        default=False,
-                        action='store_true',
-                        help="If present, Execution guided decoding is used in test.")
-    parser.add_argument('--beam_size',
-                        type=int,
-                        default=4,
-                        help="The size of beam for smart decoding")
-
-    args = parser.parse_args()
+def construct_hyper_param():
+    args = SimpleNamespace(**{
+        "model_file": os.getenv("MODEL_FILE"),
+        "bert_model_file": os.getenv("BERT_MODEL_FILE"),
+        "bert_path": os.getenv("BERT_PATH"),
+        "data_path": os.getenv("DATA_PATH"),
+        "split": os.getenv("SPLIT"),
+        "result_path": os.getenv("RESULT_PATH"),
+        "tepoch": int(os.getenv("TEPOCH")),
+        "bS": int(os.getenv("BATCH_SIZE")),
+        "accumulate_gradients": int(os.getenv("ACCUMULATE_GRADIENTS")),
+        "fine_tune": bool(os.getenv("fine_tune")),
+        "model_type": os.getenv("MODEL_TYPE"),
+        "vocab_file": os.getenv("MODEL_TYPE"),
+        "max_seq_length": int(os.getenv("MAX_SEQ_LENGTH")),
+        "num_target_layers": int(os.getenv("NUM_TARGET_LAYERS")),
+        "lr_bert": float(os.getenv("LR_BERT")),
+        "seed": int(os.getenv("SEED")),
+        "no_pretraining": bool(os.getenv("NO_PRETRAINING")),
+        "bert_type_abb": os.getenv("BERT_TYPE_ABB"),
+        "lS": int(os.getenv("NUM_LSTM_LAYERS")),
+        "dr": float(os.getenv("DROPOUT_RATE")),
+        "lr": float(os.getenv("LEARNING_RATE")),
+        "hS": int(os.getenv("HIDDEN_VECTOR_DIMENSION")),
+        "EG": bool(os.getenv("EXECUTION_GUIDED_DECODING")),
+        "beam_size": int(os.getenv("BEAM_SIZE"))
+    })
+    # parser.add_argument('--tepoch', default=200, type=int)
+    # parser.add_argument("--bS", default=32, type=int,
+    #                     help="Batch size")
+    # parser.add_argument("--accumulate_gradients", default=1, type=int,
+    #                     help="The number of accumulation of backpropagation to effectivly increase the batch size.")
+    # parser.add_argument('--fine_tune',
+    #                     default=False,
+    #                     action='store_true',
+    #                     help="If present, BERT is trained.")
+    #
+    # parser.add_argument("--model_type", default='Seq2SQL_v1', type=str,
+    #                     help="Type of model.")
+    #
+    # # 1.2 BERT Parameters
+    # parser.add_argument("--vocab_file",
+    #                     default='vocab.txt', type=str,
+    #                     help="The vocabulary file that the BERT model was trained on.")
+    # parser.add_argument("--max_seq_length",
+    #                     default=222, type=int, # Set based on maximum length of input tokens.
+    #                     help="The maximum total input sequence length after WordPiece tokenization. Sequences "
+    #                          "longer than this will be truncated, and sequences shorter than this will be padded.")
+    # parser.add_argument("--num_target_layers",
+    #                     default=2, type=int,
+    #                     help="The Number of final layers of BERT to be used in downstream task.")
+    # parser.add_argument('--lr_bert', default=1e-5, type=float, help='BERT model learning rate.')
+    # parser.add_argument('--seed',
+    #                     type=int,
+    #                     default=42,
+    #                     help="random seed for initialization")
+    # parser.add_argument('--no_pretraining', action='store_true', help='Use BERT pretrained model')
+    # parser.add_argument("--bert_type_abb", default='uS', type=str,
+    #                     help="Type of BERT model to load. e.g.) uS, uL, cS, cL, and mcS")
+    #
+    # # 1.3 Seq-to-SQL module parameters
+    # parser.add_argument('--lS', default=2, type=int, help="The number of LSTM layers.")
+    # parser.add_argument('--dr', default=0.3, type=float, help="Dropout rate.")
+    # parser.add_argument('--lr', default=1e-3, type=float, help="Learning rate.")
+    # parser.add_argument("--hS", default=100, type=int, help="The dimension of hidden vector in the seq-to-SQL module.")
+    #
+    # # 1.4 Execution-guided decoding beam-size. It is used only in test.py
+    # parser.add_argument('--EG',
+    #                     default=False,
+    #                     action='store_true',
+    #                     help="If present, Execution guided decoding is used in test.")
+    # parser.add_argument('--beam_size',
+    #                     type=int,
+    #                     default=4,
+    #                     help="The size of beam for smart decoding")
+    #
+    # args = parser.parse_args()
 
     map_bert_type_abb = {'uS': 'uncased_L-12_H-768_A-12',
                          'uL': 'uncased_L-24_H-1024_A-16',
@@ -553,7 +580,7 @@ if __name__ == '__main__':
 
     ## 1. Hyper parameters
     parser = argparse.ArgumentParser()
-    args = construct_hyper_param(parser)
+    args = construct_hyper_param()
 
     ## 2. Paths
     path_h = '/home/wonseok'
