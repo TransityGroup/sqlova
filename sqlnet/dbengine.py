@@ -4,6 +4,7 @@
 import records
 import re
 from babel.numbers import parse_decimal, NumberFormatError
+import simplejson as json
 
 
 schema_re = re.compile(r'\((.+)\)')  # group (.......) dfdf (.... )group
@@ -14,6 +15,17 @@ num_re = re.compile(r'[-+]?\d*\.\d+|\d+')
 
 agg_ops = ['', 'MAX', 'MIN', 'COUNT', 'SUM', 'AVG']
 cond_ops = ['=', '>', '<', 'OP']
+
+def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.float):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, complex):
+            eturn [obj.real, obj.imag]
+    return str(obj)
 
 
 class DBEngine:
@@ -146,7 +158,7 @@ class DBEngine:
             out = self.pdb.query(query)
             return [o.result for o in out]
 
-        
+    
 
     def execute_return_query(self, table_id, select_index, aggregation_index, conditions, lower=True):
         print("EXECUTING RETURN QUERY")
