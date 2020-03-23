@@ -41,7 +41,7 @@ from typing import Union, Iterable, List
 import numpy as np
 import simplejson as json
 import torch
-from fastapi import FastAPI, Form, status, Response
+from fastapi import FastAPI, Form, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -79,7 +79,7 @@ args = construct_hyper_param()
 # handle_request = None
 
 thread = None
-status = "Loading sqlova model, please wait"
+# status = "Loading sqlova model, please wait"
 
 app = FastAPI()
 
@@ -290,5 +290,5 @@ if args.split:
     exit(0)
 
 
-status = "Loading corenlp models, please wait"
+# status = "Loading corenlp models, please wait"
 annotate_ws.annotate('start up please')
