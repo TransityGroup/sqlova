@@ -270,7 +270,7 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
         os.remove(base + '.tables.jsonl')
         os.remove(base + '_tok.jsonl')
         print("DELETED")
-        if 'result' in message:
+        # if 'result' in message:
             # message = message['results'][0]
             # message['params'] = message['sql_with_params'][1]
             # message['sql'] = message['sql_with_params'][0]
