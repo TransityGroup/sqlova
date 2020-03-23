@@ -274,8 +274,8 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
                 message = json.loads(json.dumps(message['result'][0], default=encode_complex))
                 message['params'] = message['sql_with_params'][1]
                 message['sql'] = message['sql_with_params'][0]
-
-        return messsage
+        
+        return message
     except Exception as e:
         print(e)
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
