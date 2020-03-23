@@ -105,9 +105,6 @@ class DBEngine:
         for col_index, op, val in conditions:
             print(types[col_index])
             col = columns[col_index]
-            if isinstance(val, str):
-                val = "'{}'".format(val.lower())
-                col = "LOWER({})".format(col)
             if types[col_index] == 'real' and not isinstance(val, (int, float)):
                 try:
                     val = float(parse_decimal(
@@ -120,6 +117,10 @@ class DBEngine:
                     except:
                         # Although column is of number, selected one is not number. Do nothing in this case.
                         pass
+            elif isinstance(val, str):
+                val = "'{}'".format(val.lower())
+                col = "LOWER({})".format(col)
+            
 
             where_clause.append('{} {} {}'.format(
                 col, cond_ops[op], val))
