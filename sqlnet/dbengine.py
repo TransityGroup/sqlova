@@ -133,7 +133,7 @@ class DBEngine:
         if("id" in select.lower()):
             print("REPLACE WITH ALL", select)
             print(columns)
-            select = *
+            select = "*"
         query = 'SELECT {} AS result FROM {} {}'.format(
             select, table, where_str)
         print(query)
