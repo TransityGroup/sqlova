@@ -225,11 +225,11 @@ def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
     elif isinstance(obj, complex):
-            eturn [obj.real, obj.imag]
+        return [obj.real, obj.imag]
     return str(obj)
 
 @app.post('/')
-def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: str = Form(...)):
+def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
     base = ""
     try:
         # filename = "data/test.csv"
