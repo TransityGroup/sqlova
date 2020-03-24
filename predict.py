@@ -229,7 +229,7 @@ def encode_complex(obj) -> Union[int, float, Iterable, List[float], str]:
 
 
 @app.post('/')
-async def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
+def question(response: Response, table_name: str = "trips", q: str = Form(...), debug: bool = Form(...)):
     base = ""
     try:
         print("___________________________________________________")
