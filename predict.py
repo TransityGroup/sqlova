@@ -188,7 +188,6 @@ def run_split(split, columns, types, db_path, table):
         num_workers=1,
         collate_fn=lambda x: x  # now dictionary values are not merged!
     )
-
     # Run prediction
     with torch.no_grad():
         results = predict(dev_loader,
@@ -239,7 +238,7 @@ def question(response: Response, table_name: str = "trips", q: str = Form(...), 
         table_id = re.sub(r'\W+', '_', table_id)
 
         record = add_csv.sql_to_json(
-            table_id, 'tabled id blablbla', base + '.tables.jsonl')
+            table_id, db_path, base + '.tables.jsonl')
 
         # Markup the questions
         add_question.question_to_json(table_id, q, base + '.jsonl')

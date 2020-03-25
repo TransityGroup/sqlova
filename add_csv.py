@@ -77,9 +77,9 @@ def csv_stream_to_json(table_id, f, json_file_name):
         fout.write('\n')
     return record
 
-def sql_to_json(table_id, sql_path, json_file_name):
+def sql_to_json(table_id, db_path, json_file_name):
     table_name = "trips"
-    db = records.Database("postgres://postgres:postgres@localhost:5432/honda_dev")
+    db = records.Database(db_path)
     df = db.query("Select * from {} limit 1000".format(table_name)).export('df')
     schema = db.query("select column_name, data_type  from information_schema.columns where table_name = '{}'".format(table_name))
     columns = []
